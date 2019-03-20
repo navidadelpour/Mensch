@@ -2,20 +2,33 @@ using System.Collections.Generic;
 
 public class Player {
 
-    List<Piece> inPieces;
-    List<Piece> outPieces;
+    public List<Piece> inPieces;
+    public List<Piece> outPieces;
+    
+    public int piecesCount;
+    public int index;
 
-    Game game;
+    public Game game;
+    public int lastPosition;
 
-    public Player(Game game) {
+    public Player(Game game, int index) {
         this.game = game;
+        this.index = index;
 
+        piecesCount = game.board.pieceForEachPlayer;
         outPieces = new List<Piece>();
         inPieces = new List<Piece>();
         
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < piecesCount; i++) {
             outPieces.Add(new Piece(this));
         }
+
+        // 0: 39
+        // 1: 9
+        // 2: 19
+        // 3: 29
+        // example: (2 * 40 / 4 - 1) % 40 = 19
+        lastPosition = (index * game.board.roadSize / game.board.maxPlayers - 1) % game.board.roadSize;
     }
 
     public virtual void DoDice() {
@@ -27,10 +40,20 @@ public class Player {
     }
 
     public bool CanMove(int diceNumber) {
-        bool returnValue = inPieces.Length != 0;
+        bool returnValue = inPieces.Capacity != 0;
         if (diceNumber == 6)
-            returnValue |= outPieces.Length != 0;
+            returnValue |= outPieces.Capacity != 0;
         return returnValue;
+    }
+
+    public void Swap(Piece piece) {
+        if(piece.isIn) {
+            inPieces.Remove(piece);
+            outPieces.Add(piece);
+        } else {
+            outPieces.Remove(piece);
+            inPieces.Add(piece);
+        }
     }
 
 }

@@ -1,24 +1,24 @@
-using System;
-
 public class Game {
 
-    GameStates state;
-    Board board;
-    Player[] players;
-    int currentPlayerIndex;
+    public GameState state;
+    public Board board;
+    public Player[] players;
+    public int currentPlayerIndex;
 
-    int diceNumber;
+    public int diceNumber;
 
-    public Game(Board board, PlayerTypes[] playerTypes) {
+    public Game(Board board, PlayerType[] playerTypes) {
+        this.board = board;
+
         // instantiate players
         players = new Player[playerTypes.Length];
         for(int i = 0; i < playerTypes.Length; i++) {
-            switch (type) {
-                case PlayerTypes.HUMAN:
-                    players[i] = new Player(this);
+            switch (playerTypes[i]) {
+                case PlayerType.HUMAN:
+                    players[i] = new Player(this, i);
                     break;
-                case PlayerTypes.AI:
-                    players[i] = new AIPlayer(this);
+                case PlayerType.AI:
+                    players[i] = new AIPlayer(this, i);
                     break;
                 default:
                     players[i] = null;
@@ -27,13 +27,19 @@ public class Game {
         }
 
         // default values for game
-        state = GameStates.DICE;
+        state = GameState.DICE;
         currentPlayerIndex = 0;
-        players[currentPlayerIndex].Act();
+
+        // start the game
+        players[currentPlayerIndex].DoDice();
     }
 
     // onclick listener for piece clicking
     public void MovePiece(Piece piece) {
+        if(state != GameState.MOVE) {
+            return;
+        }
+
         if(piece == null) {
             // means when we cant move any piece
             return;
@@ -43,7 +49,7 @@ public class Game {
         if(players[currentPlayerIndex] == piece.player) {
             if(piece.isIn){
                 // check our forward step
-                Piece possibleHittedPiece = piece.CheckForward(board);
+                Piece possibleHittedPiece = piece.CheckForward(diceNumber);
                 if(possibleHittedPiece == null){
                     // no one is in the way
                     piece.GoForward(diceNumber);
@@ -55,25 +61,25 @@ public class Game {
                     NextPlayer();
                 } else {
                     // another piece of ours is blocking the way
+                    // or we are moving out of the goal area
                     return;
                 }
-            } else {
-                if(diceNumber == 6) {
-                    // check our forward step
-                    Piece possibleHittedPiece = piece.CheckForward(board);
-                    if(possibleHittedPiece == null){
-                        // no one is in the way
-                        piece.GetIn();
-                        NextPlayer();
-                    } else if(possibleHittedPiece.player != piece.player){
-                        // hit the enemy
-                        possibleHittedPiece.GetOut();
-                        piece.GetIn();
-                        NextPlayer();
-                    } else {
-                        // another piece of ours is blocking the way
-                        return;
-                    }
+            } else if(diceNumber == 6) {
+                // check our forward step
+                Piece possibleHittedPiece = piece.CheckForward(diceNumber);
+                if(possibleHittedPiece == null){
+                    // no one is in the way
+                    piece.GetIn();
+                    NextPlayer();
+                } else if(possibleHittedPiece.player != piece.player){
+                    // hit the enemy
+                    possibleHittedPiece.GetOut();
+                    piece.GetIn();
+                    NextPlayer();
+                } else {
+                    // another piece of ours is blocking the way
+                    // or we are moving out of the goal area
+                    return;
                 }
             }
         } else {
@@ -82,8 +88,12 @@ public class Game {
     }
 
     public void RollDice() {
-        diceNumber = Random.Range(1, 7);
-        state = state = GameStates.MOVE;
+        if(state != GameState.DICE) {
+            return;
+        }
+
+        diceNumber = 4;
+        state = GameState.MOVE;
 
         Player player = players[currentPlayerIndex];
         if(player.CanMove(diceNumber)) {
@@ -94,8 +104,8 @@ public class Game {
     }
 
     public void NextPlayer() {
-        currentPlayerIndex ++;
-        state = GameStates.DICE;
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.Length;
+        state = GameState.DICE;
         
         players[currentPlayerIndex].DoDice();
     }

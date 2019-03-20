@@ -2,22 +2,37 @@ using UnityEngine;
 
 public class Visualizer : MonoBehaviour {
 
+    PlayerType[] playersTypes;
+    Board board;
+    Game game;
+
     void Start() {
-        Board board = new FourPlayerBoard();
-        Game game = new Game();
+        playersTypes = new PlayerType[]{PlayerType.AI, PlayerType.AI, PlayerType.AI, PlayerType.AI};
+        board = new Board(4, 40, 4);
+        game = new Game(board, playersTypes);
+        
     }
     
-    // what if I add these functions to humanPlayer class?!
     public void OnPieceClick() {
-        if(state == GameStates.MOVE) {
-            game.MovePiece();
-        }
+        // TODO: fetch piece data
+        game.MovePiece(null);
     }
 
     public void OnDiceClick() {
-        if(state == GameStates.DICE) {
-            game.RollDice();
-        }
+        game.RollDice();
     }
+
+    // a way to instantiate 4 player board game
+    
+    // events called in game logic and need to be handled on UI:
+    // get piece in, out
+    // moving pieces
+    // attack piece
+    // go to goal
+    // dice roll
+
+    // onclick events comming from users:
+    // dice
+    // pieces
 
 }
