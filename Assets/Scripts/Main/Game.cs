@@ -1,14 +1,48 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+
 public class Game {
 
-    public GameState state;
+    Thread thread;
+    ManualResetEvent mre;
+    public bool paused;
+    public bool turnBased;
+
+    // TODO: use a bool instead of Enum
+    public bool shouldDice;
     public Board board;
+    public Player winnedPlayer;
     public Player[] players;
     public int currentPlayerIndex;
 
     public int diceNumber;
+    private Random randomGenerator;
 
-    public Game(Board board, PlayerType[] playerTypes) {
+    #region events 
+
+    // TODO: safly invoking events...(a good choice is to update C# to v6 and use x?.invoke() notaion)
+    public delegate void RollDiceHandler(RollDiceEventArgs eventArgs);
+    public event RollDiceHandler RolledDiceEvent;
+
+    public delegate void SetNextTurnHandler(SetNextTurnEventArgs eventArgs);
+    public event SetNextTurnHandler SetNextTurnEvent;
+
+    public delegate void GetInPieceHandler(GetInPieceEventArgs eventArgs);
+    public event GetInPieceHandler GetInPieceEvent;
+
+    public delegate void GetOutPieceHandler(GetOutPieceEventArgs eventArgs);
+    public event GetOutPieceHandler GetOutPieceEvent;
+    
+    public delegate void MovePieceHandler(MovePieceEventArgs eventArgs);
+    public event MovePieceHandler MovePieceEvent;
+
+    #endregion
+
+    public Game(Board board, PlayerType[] playerTypes, bool turnBased) {
         this.board = board;
+        this.turnBased = turnBased;
 
         // instantiate players
         players = new Player[playerTypes.Length];
@@ -27,86 +61,99 @@ public class Game {
         }
 
         // default values for game
-        state = GameState.DICE;
-        currentPlayerIndex = 0;
+        shouldDice = true;
+        currentPlayerIndex = -1;
+        randomGenerator = new Random();
 
-        // start the game
-        players[currentPlayerIndex].DoDice();
     }
 
-    // onclick listener for piece clicking
+    // start the game
+    public Thread Start() {
+        thread = new Thread(new ThreadStart(NextTurn));
+        mre = new ManualResetEvent(true);
+        thread.Start();
+        return thread;
+    }
+
+    public void Pause() {
+        paused = true;
+        mre.Reset();
+    }
+
+    public void Resume() {
+        paused = false;
+        mre.Set();
+    }
+
     public void MovePiece(Piece piece) {
-        if(state != GameState.MOVE) {
+        if(shouldDice) {
             return;
         }
-
         if(piece == null) {
-            // means when we cant move any piece
+            NextTurn();
             return;
-            NextPlayer();
         }
 
         if(players[currentPlayerIndex] == piece.player) {
-            if(piece.isIn){
-                // check our forward step
-                Piece possibleHittedPiece = piece.CheckForward(diceNumber);
-                if(possibleHittedPiece == null){
-                    // no one is in the way
-                    piece.GoForward(diceNumber);
-                    NextPlayer();
-                } else if(possibleHittedPiece.player != piece.player){
-                    // hit the enemy
+            KeyValuePair<Piece, BlockType> tuple = piece.GetBlock(diceNumber);
+            Piece possibleHittedPiece = tuple.Key;
+            BlockType blockType = tuple.Value;
+            UnityEngine.Debug.Log(blockType.ToString()); 
+            
+            if(blockType != BlockType.OUTGOAL && blockType != BlockType.ALLY) {
+                if(blockType == BlockType.ENEMY) {
                     possibleHittedPiece.GetOut();
-                    piece.GoForward(diceNumber);
-                    NextPlayer();
-                } else {
-                    // another piece of ours is blocking the way
-                    // or we are moving out of the goal area
-                    return;
+                    GetOutPieceEvent(new GetOutPieceEventArgs(piece, possibleHittedPiece));
                 }
-            } else if(diceNumber == 6) {
-                // check our forward step
-                Piece possibleHittedPiece = piece.CheckForward(diceNumber);
-                if(possibleHittedPiece == null){
-                    // no one is in the way
+
+                if(piece.isIn) {
+                    piece.GoForward(diceNumber, blockType == BlockType.INGOAL);
+                    MovePieceEvent(new MovePieceEventArgs(piece, diceNumber));
+                } else if(diceNumber == 6){
                     piece.GetIn();
-                    NextPlayer();
-                } else if(possibleHittedPiece.player != piece.player){
-                    // hit the enemy
-                    possibleHittedPiece.GetOut();
-                    piece.GetIn();
-                    NextPlayer();
-                } else {
-                    // another piece of ours is blocking the way
-                    // or we are moving out of the goal area
-                    return;
+                    GetInPieceEvent(new GetInPieceEventArgs(piece));
                 }
+
+                if(winnedPlayer != null)
+                    UnityEngine.Debug.Log(winnedPlayer.index + " win");
+                else
+                    NextTurn();
             }
-        } else {
-            // cant play because it's not your turn
         }
     }
-
     public void RollDice() {
-        if(state != GameState.DICE) {
+        if(!shouldDice) {
             return;
         }
 
-        diceNumber = 4;
-        state = GameState.MOVE;
+        diceNumber = randomGenerator.Next(1, 7);
+        shouldDice = false;
 
         Player player = players[currentPlayerIndex];
-        if(player.CanMove(diceNumber)) {
+        bool canMove = player.CanMove(diceNumber);
+
+        RolledDiceEvent(new RollDiceEventArgs(diceNumber, player, canMove));
+
+        if(canMove) {
             player.DoMove(diceNumber);
         } else {
-            NextPlayer();
+            NextTurn();
         }
     }
 
-    public void NextPlayer() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.Length;
-        state = GameState.DICE;
+    // if next == false => same player rolls the dice again
+    public void NextTurn() {
+        mre.WaitOne();
+        if(turnBased)
+            Pause();
+
+        UnityEngine.Debug.Log("----------------------------------------------------------------");
+        if(diceNumber != 6){
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.Length;
+            SetNextTurnEvent(new SetNextTurnEventArgs(players[currentPlayerIndex]));
+        }
         
+        shouldDice = true;
         players[currentPlayerIndex].DoDice();
     }
 

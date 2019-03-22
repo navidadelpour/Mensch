@@ -16,7 +16,7 @@ public class Board {
     }
 
     public Piece GetPieceInPosition(int position) {
-        for(int i = 0; i < inPieces.Capacity; i++) {
+        for(int i = 0; i < inPieces.Count; i++) {
             if(inPieces[i].position == position) {
                 return inPieces[i];
             }
@@ -24,7 +24,6 @@ public class Board {
         return null;
     }
 
-    // TODO: modify inPieces list
     public void Swap(Piece piece) {
         if(piece.isIn) {
             inPieces.Remove(piece);
