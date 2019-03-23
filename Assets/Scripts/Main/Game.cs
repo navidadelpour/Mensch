@@ -10,7 +10,6 @@ public class Game {
     public bool paused;
     public bool turnBased;
 
-    // TODO: use a bool instead of Enum
     public bool shouldDice;
     public Board board;
     public Player winnedPlayer;
@@ -20,9 +19,8 @@ public class Game {
     public int diceNumber;
     private Random randomGenerator;
 
-    #region events 
-
     // TODO: safly invoking events...(a good choice is to update C# to v6 and use x?.invoke() notaion)
+    #region declaring events 
     public delegate void RollDiceHandler(RollDiceEventArgs eventArgs);
     public event RollDiceHandler RolledDiceEvent;
 

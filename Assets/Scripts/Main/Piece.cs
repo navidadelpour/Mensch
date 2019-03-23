@@ -18,7 +18,7 @@ public class Piece : IComparable<Piece> {
         isIn = false;
         inGoal = false;
 
-        position = -1;
+        position = index;
     }
 
     public KeyValuePair<Piece, BlockType> GetBlock(int diceNumber) {
@@ -67,17 +67,17 @@ public class Piece : IComparable<Piece> {
     }
 
     public void GetIn() {
-        board.Swap(this);
-        player.Swap(this);
+        board.GetIn(this);
+        player.GetIn(this);
         isIn = true;
         position = player.startPosition;
     }
 
     public void GetOut() {
-        board.Swap(this);
-        player.Swap(this);
+        board.GetIn(this);
+        player.GetIn(this);
         isIn = false;
-        position = -1;
+        position = index;
         pacesGone = 0;
     }
 

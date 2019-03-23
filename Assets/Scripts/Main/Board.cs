@@ -24,7 +24,7 @@ public class Board {
         return null;
     }
 
-    public void Swap(Piece piece) {
+    public void GetIn(Piece piece) {
         if(piece.isIn) {
             inPieces.Remove(piece);
         } else {

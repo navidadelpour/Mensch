@@ -54,7 +54,7 @@ public class Player {
         return returnValue;
     }
 
-    public void Swap(Piece piece) {
+    public void GetIn(Piece piece) {
         if(piece.isIn) {
             inPieces.Remove(piece);
             outPieces.Add(piece);
