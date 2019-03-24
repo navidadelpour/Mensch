@@ -15,22 +15,4 @@ public class Board {
         inPieces = new List<Piece>();
     }
 
-    public Piece GetPieceInPosition(int position) {
-        for(int i = 0; i < inPieces.Count; i++) {
-            if(inPieces[i].position == position) {
-                return inPieces[i];
-            }
-        }
-        return null;
-    }
-
-    public void GetIn(Piece piece) {
-        if(piece.isIn) {
-            inPieces.Remove(piece);
-        } else {
-            inPieces.Add(piece);
-        }
-    }
-
-
 }

@@ -2,32 +2,42 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Threading;
+using System.Collections;
 using System.Collections.Generic;
 
 public class Visualizer : MonoBehaviour {
 
     public bool turnBased;
     public bool log;
+    public bool ui;
+    public bool onePlayer;
+    [HideInInspector] public Transform blocksParent;
+    public GameObject blockPrefab;
+    public Text dice;
+
     public PlayerData[] playersData;
+    [HideInInspector] public PlayerData player;
     public Player[] players;
     Board board;
     public Game game;
     Thread gameThread;
-
-    public GameObject blockPrefab;
-    public Text dice;
+    Thread mainThread;
 
     void Start() {
         if(log)
             gameObject.AddComponent(typeof(Logger));
 
-        SetupGameVisual();
+        if(ui)
+            SetupGameVisual();
+
+        Thread mainThread = Thread.CurrentThread;
+
         SetupGameLogic();
         gameThread = game.Start();
     }
 
     void Update() {
-        if(Input.GetKeyDown(KeyCode.B))
+        if(Input.GetKeyDown(KeyCode.Space))
             if(!game.paused)
                 game.Pause();
             else
@@ -48,20 +58,21 @@ public class Visualizer : MonoBehaviour {
     }
 
     public void SetupGameLogic() {
-        PlayerType[] playerTypes = new PlayerType[playersData.Length];
-        for(int i = 0; i < playersData.Length; i++)
+        PlayerType[] playerTypes = new PlayerType[onePlayer ? 1 : playersData.Length];
+        for(int i = 0; i < (onePlayer ? 1 : playersData.Length); i++)
             playerTypes[i] = playersData[i].type;
 
         board = new Board(4, 40, 4);
         game = new Game(board, playerTypes, turnBased);
         players = game.players;
+        player = playersData[0];
 
         Subscribtion();
     }
 
     public void SetupGameVisual() {
         // setup board normal blocks
-        Transform blocksParent = (new GameObject("Blocks")).transform;
+        blocksParent = (new GameObject("Blocks")).transform;
         Vector2 position = new Vector2(-1, -5);
         Vector2[] directions = {
             Vector2.up, Vector2.left, Vector2.up,
@@ -136,6 +147,45 @@ public class Visualizer : MonoBehaviour {
 
         }
     }
+    
+    public void Subscribtion() {
+        game.RolledDiceEvent += new Game.RollDiceHandler(OnRolledDice);
+        game.SetNextTurnEvent += new Game.SetNextTurnHandler(OnSetNextPlayer);
+        game.GetInPieceEvent += new Game.GetInPieceHandler(OnGetInPiece);
+        game.GetOutPieceEvent += new Game.GetOutPieceHandler(OnGetOutPiece);
+        game.MovePieceEvent += new Game.MovePieceHandler(OnMovePiece);
+    }
+    
+    // FIXME: thread problems with unity API
+    #region event listeners
+    
+    public void OnRolledDice(RollDiceEventArgs e) {
+        // dice.text = e.diceNumber.ToString();
+    }
+
+    public void OnSetNextPlayer(SetNextTurnEventArgs e) {
+        // player = playersData[e.player.index];
+    }
+
+    public void OnGetInPiece(GetInPieceEventArgs e) {
+        // SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
+    }
+
+    public void OnGetOutPiece(GetOutPieceEventArgs e) {
+        // SetToPosition(player.piecesParent, player.outsParent, e.piece.index, e.piece.position);
+    }
+
+    public void OnMovePiece(MovePieceEventArgs e) {
+        // SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
+    }
+
+    public void SetToPosition(Transform fromParent, Transform toParent, int fromIndex, int toIndex) {
+        Transform from = fromParent.GetChild(fromIndex);
+        Transform to = toParent.GetChild(toIndex);
+        from.position = to.position;
+    }
+
+    #endregion
 
     public void OnPieceClick() {
         // TODO: fetch piece data
@@ -144,33 +194,6 @@ public class Visualizer : MonoBehaviour {
 
     public void OnDiceClick() {
         game.RollDice();
-    }
-
-    public void Subscribtion() {
-        game.RolledDiceEvent += new Game.RollDiceHandler(OnRolledDice);
-        game.SetNextTurnEvent += new Game.SetNextTurnHandler(OnSetNextPlayer);
-        game.GetInPieceEvent += new Game.GetInPieceHandler(OnGetInPiece);
-        game.GetOutPieceEvent += new Game.GetOutPieceHandler(OnGetOutPiece);
-        game.MovePieceEvent += new Game.MovePieceHandler(OnMovePiece);
-    }
-    public void OnRolledDice(RollDiceEventArgs e) {
-
-    }
-
-    public void OnSetNextPlayer(SetNextTurnEventArgs e) {
-
-    }
-
-    public void OnGetInPiece(GetInPieceEventArgs e) {
-
-    }
-
-    public void OnGetOutPiece(GetOutPieceEventArgs e) {
-
-    }
-
-    public void OnMovePiece(MovePieceEventArgs e) {
-
     }
 
 }

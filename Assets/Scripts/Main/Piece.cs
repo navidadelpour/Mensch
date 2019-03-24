@@ -9,6 +9,7 @@ public class Piece : IComparable<Piece> {
     public bool inGoal;
     public int position;
     public int pacesGone;
+    public float heuristic;
     public int index;
 
     public Piece(Player player, int index) {
@@ -22,34 +23,37 @@ public class Piece : IComparable<Piece> {
     }
 
     public KeyValuePair<Piece, BlockType> GetBlock(int diceNumber) {
-        int nextPosition;
+        int nextPosition = 0;
         BlockType blockType = BlockType.NOTHING;
         if(isIn) {
             nextPosition = pacesGone  + diceNumber - board.roadSize;
             if(nextPosition >= 0) {
                 // reached the goal
-                // moving outside of the goal situation
-                blockType = BlockType.OUTGOAL;
                 if(nextPosition < board.pieceForEachPlayer) {
                     // moving inside of the goal situation
                     blockType = BlockType.INGOAL;
-                    foreach (Piece piece in player.inPieces)
-                        if(nextPosition == piece.position)
-                            return new KeyValuePair<Piece, BlockType>(piece, BlockType.ALLY);
+                } else {
+                    // moving outside of the goal situation
+                    blockType = BlockType.OUTGOAL;
+                    return new KeyValuePair<Piece, BlockType>(null, blockType);
                 }
             } else {
                 // not reached the goal
                 nextPosition = (position + diceNumber) % board.roadSize;
-                foreach (Piece piece in board.inPieces)
-                    if(nextPosition == piece.position)
-                        return new KeyValuePair<Piece, BlockType>(piece, player == piece.player ? BlockType.ALLY : BlockType.ENEMY);
             }
+        } else if(diceNumber == 6){
+            // get in proccess
+            nextPosition = player.startPosition;
         } else {
-            Piece piece = board.GetPieceInPosition(player.startPosition);
-            if(piece != null)
-                blockType = player == piece.player ? BlockType.ALLY : BlockType.ENEMY;
-            return new KeyValuePair<Piece, BlockType>(piece, blockType);
+            // not allowed
+            blockType = BlockType.OUTGOAL;
+            return new KeyValuePair<Piece, BlockType>(null, blockType);
         }
+
+        foreach (Piece piece in board.inPieces)
+            if(nextPosition == piece.position && inGoal == piece.inGoal)
+                return new KeyValuePair<Piece, BlockType>(piece, player == piece.player ? BlockType.ALLY : BlockType.ENEMY);
+
         return new KeyValuePair<Piece, BlockType>(null, blockType);
     }
 
@@ -67,22 +71,26 @@ public class Piece : IComparable<Piece> {
     }
 
     public void GetIn() {
-        board.GetIn(this);
-        player.GetIn(this);
+        board.inPieces.Add(this);
+        player.inPieces ++;
         isIn = true;
         position = player.startPosition;
     }
 
     public void GetOut() {
-        board.GetIn(this);
-        player.GetIn(this);
+        board.inPieces.Remove(this);
+        player.inPieces --;
         isIn = false;
         position = index;
         pacesGone = 0;
     }
 
     public int CompareTo(Piece b) {
-        return this.pacesGone.CompareTo(b.pacesGone);
+        int compareValue = b.heuristic.CompareTo(heuristic);
+        if(compareValue == 0)
+            compareValue = index.CompareTo(b.index);
+
+        return compareValue;
     }
 
     public override string ToString() {

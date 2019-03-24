@@ -93,9 +93,9 @@ public class Game {
         }
 
         if(players[currentPlayerIndex] == piece.player) {
-            KeyValuePair<Piece, BlockType> tuple = piece.GetBlock(diceNumber);
-            Piece possibleHittedPiece = tuple.Key;
-            BlockType blockType = tuple.Value;
+            KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
+            Piece possibleHittedPiece = hitted.Key;
+            BlockType blockType = hitted.Value;
             UnityEngine.Debug.Log(blockType.ToString()); 
             
             if(blockType != BlockType.OUTGOAL && blockType != BlockType.ALLY) {

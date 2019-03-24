@@ -4,12 +4,10 @@ using System;
 [Serializable]
 public class Player {
 
-    public List<Piece> inPieces;
-    public List<Piece> outPieces;
+    public Piece[] pieces;
+    public int inPieces;
     
-    public int piecesCount;
     public int index;
-
     public Game game;
     public int lastPosition;
     public int startPosition;
@@ -18,12 +16,9 @@ public class Player {
         this.game = game;
         this.index = index;
 
-        piecesCount = game.board.pieceForEachPlayer;
-        outPieces = new List<Piece>();
-        inPieces = new List<Piece>();
-        
-        for(int i = 0; i < piecesCount; i++) {
-            outPieces.Add(new Piece(this, i));
+        pieces = new Piece[game.board.pieceForEachPlayer];
+        for(int i = 0; i < pieces.Length; i++) {
+            pieces[i] = new Piece(this, i);
         }
 
         // 0: 39
@@ -48,28 +43,18 @@ public class Player {
     }
 
     public bool CanMove(int diceNumber) {
-        bool returnValue = inPieces.Count != 0;
+        bool returnValue = inPieces != 0;
         if (diceNumber == 6)
-            returnValue |= outPieces.Count != 0;
+            returnValue |= inPieces != pieces.Length;
         return returnValue;
-    }
-
-    public void GetIn(Piece piece) {
-        if(piece.isIn) {
-            inPieces.Remove(piece);
-            outPieces.Add(piece);
-        } else {
-            outPieces.Remove(piece);
-            inPieces.Add(piece);
-        }
     }
 
     public void CheckForWin() {
         bool win = false;
-        if(outPieces.Count == 0) {
+        if(inPieces == pieces.Length) {
             win = true;
-            for(int i = 0; i < inPieces.Count; i++) {
-                if(!inPieces[i].inGoal)
+            for(int i = 0; i < pieces.Length; i++) {
+                if(!pieces[i].inGoal)
                     win = false;
             }
         }

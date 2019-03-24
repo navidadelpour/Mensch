@@ -182,7 +182,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 6
+  m_Text: 
 --- !u!222 &321650281
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -286,8 +286,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b615a6660cef094ba47d7954f7af163, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnBased: 0
+  turnBased: 1
   log: 1
+  ui: 0
+  onePlayer: 1
+  blocksParent: {fileID: 0}
+  blockPrefab: {fileID: 5535488404319326786, guid: 6a17d96b0d9b76940b86fd7f97d8a6e8,
+    type: 3}
+  dice: {fileID: 321650280}
   playersData:
   - color: {r: 1, g: 0, b: 0, a: 1}
     type: 1
@@ -317,10 +323,15 @@ MonoBehaviour:
     outsParent: {fileID: 0}
     goalsParent: {fileID: 0}
     piecesParent: {fileID: 0}
+  player:
+    color: {r: 0, g: 0, b: 0, a: 0}
+    type: 0
+    transform: {fileID: 0}
+    dice: {fileID: 0}
+    outsParent: {fileID: 0}
+    goalsParent: {fileID: 0}
+    piecesParent: {fileID: 0}
   players: []
-  blockPrefab: {fileID: 5535488404319326786, guid: 6a17d96b0d9b76940b86fd7f97d8a6e8,
-    type: 3}
-  dice: {fileID: 321650280}
 --- !u!4 &1279092615
 Transform:
   m_ObjectHideFlags: 0
