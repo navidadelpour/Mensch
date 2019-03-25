@@ -19,12 +19,12 @@ public class Logger : MonoBehaviour {
 
 
     public void OnRolledDice(RollDiceEventArgs e) {
-        if(e.canMove)
         Debug.LogFormat("DICE: player {0} dice {1}",
             e.player.index, e.diceNumber);
     }
 
     public void OnSetNextPlayer(SetNextTurnEventArgs e) {
+        Debug.Log("----------------------------------------------------------------");
         Debug.LogFormat("ACTIVE: player {0}",
             e.player.index);
     }
@@ -35,8 +35,8 @@ public class Logger : MonoBehaviour {
     }
 
     public void OnGetOutPiece(GetOutPieceEventArgs e) {
-        Debug.LogFormat("GET OUT: player {0} piece {1} attacks player {2} piece {3}",
-            e.piece.player.index, e.piece.index, e.enemy.player.index, e.enemy.index);
+        Debug.LogFormat("GET OUT: player {0} piece {1}",
+            e.piece.player.index, e.piece.index);
     }
 
     public void OnMovePiece(MovePieceEventArgs e) {

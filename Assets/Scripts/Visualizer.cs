@@ -13,7 +13,8 @@ public class Visualizer : MonoBehaviour {
     public bool onePlayer;
     [HideInInspector] public Transform blocksParent;
     public GameObject blockPrefab;
-    public Text dice;
+    public Text diceLabel;
+    public Text playerLabel;
 
     public PlayerData[] playersData;
     [HideInInspector] public PlayerData player;
@@ -22,6 +23,9 @@ public class Visualizer : MonoBehaviour {
     public Game game;
     Thread gameThread;
     Thread mainThread;
+
+    public delegate void Task();
+    Queue<Task> tasksQueue = new Queue<Task>();
 
     void Start() {
         if(log)
@@ -37,21 +41,26 @@ public class Visualizer : MonoBehaviour {
     }
 
     void Update() {
+        Debug.Log(tasksQueue.Count);
         if(Input.GetKeyDown(KeyCode.Space))
             if(!game.paused)
                 game.Pause();
             else
                 game.Resume();
+        if(tasksQueue.Count > 0) {
+            tasksQueue.Dequeue()();
+        }
     }
 
     private void OnApplicationQuit() {
-        game.Pause();
+        Debug.Log("Quiting with " + tasksQueue.Count + " task");
+        game.End();
     }
 
     void OnApplicationPause(bool pauseStatus) {
         if(gameThread == null)
             return;
-        if(!pauseStatus)
+        if(!game.paused)
             game.Pause();
         else
             game.Resume();
@@ -101,7 +110,7 @@ public class Visualizer : MonoBehaviour {
         directions = new Vector2[] {
             Vector2.down, Vector2.left, Vector2.up, Vector2.right
         };
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < playersData.Length; i++) {
             GameObject player = new GameObject("player " + i);
             player.transform.parent = playersParent;
             playersData[i].transform = player.transform;
@@ -118,9 +127,9 @@ public class Visualizer : MonoBehaviour {
             Transform goalsParent = (new GameObject("Goals")).transform;
             goalsParent.parent = player.transform;
             playersData[i].goalsParent = goalsParent;
-            position = Vector2.zero;
+            position = directions[i] * 5;
             for(int j = 0; j < 4; j++) {
-                position += directions[i];
+                position -= directions[i];
                 GameObject block = Instantiate(blockPrefab, position, Quaternion.identity, goalsParent);
                 block.name = "goal block " + j;
                 block.transform.localScale *= .5f;
@@ -160,23 +169,38 @@ public class Visualizer : MonoBehaviour {
     #region event listeners
     
     public void OnRolledDice(RollDiceEventArgs e) {
-        // dice.text = e.diceNumber.ToString();
+        tasksQueue.Enqueue(new Task(() => {
+            diceLabel.text = e.diceNumber.ToString();
+        }));
     }
 
     public void OnSetNextPlayer(SetNextTurnEventArgs e) {
-        // player = playersData[e.player.index];
+        tasksQueue.Enqueue(new Task(() => {
+            player = playersData[e.player.index];
+            playerLabel.text = "Player " + e.player.index;
+            playerLabel.color = player.color;
+        }));
     }
 
     public void OnGetInPiece(GetInPieceEventArgs e) {
-        // SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
+        tasksQueue.Enqueue(new Task(() => {
+            SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
+        }));
     }
 
     public void OnGetOutPiece(GetOutPieceEventArgs e) {
-        // SetToPosition(player.piecesParent, player.outsParent, e.piece.index, e.piece.position);
+        tasksQueue.Enqueue(new Task(() => {
+            SetToPosition(playersData[e.piece.index].piecesParent, playersData[e.piece.index].outsParent, e.piece.index, e.piece.position);
+        }));
     }
 
     public void OnMovePiece(MovePieceEventArgs e) {
-        // SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
+        Transform t = blocksParent;
+        if(e.piece.inGoal)
+            t = player.goalsParent;
+        tasksQueue.Enqueue(new Task(() => {
+            SetToPosition(player.piecesParent, t, e.piece.index, e.piece.position);
+        }));
     }
 
     public void SetToPosition(Transform fromParent, Transform toParent, int fromIndex, int toIndex) {
@@ -189,11 +213,11 @@ public class Visualizer : MonoBehaviour {
 
     public void OnPieceClick() {
         // TODO: fetch piece data
-        game.MovePiece(null);
+        // game.MovePiece(null);
     }
 
     public void OnDiceClick() {
-        game.RollDice();
+        // game.RollDice();
     }
 
 }

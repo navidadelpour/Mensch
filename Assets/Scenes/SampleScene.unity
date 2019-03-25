@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 321650281}
   - component: {fileID: 321650280}
   m_Layer: 5
-  m_Name: Dice
+  m_Name: DiceLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,8 +146,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -121}
-  m_SizeDelta: {x: 40.82, y: 40.73}
+  m_AnchoredPosition: {x: 0.0000030994, y: -199.25}
+  m_SizeDelta: {x: 285, y: 107.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &321650280
 MonoBehaviour:
@@ -171,18 +171,18 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 34
+    m_FontSize: 36
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
-    m_MaxSize: 42
+    m_MaxSize: 55
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: 1
 --- !u!222 &321650281
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -256,95 +256,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1279092613
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1279092615}
-  - component: {fileID: 1279092614}
-  m_Layer: 0
-  m_Name: Visualizer
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1279092614
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1279092613}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b615a6660cef094ba47d7954f7af163, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  turnBased: 1
-  log: 1
-  ui: 0
-  onePlayer: 1
-  blocksParent: {fileID: 0}
-  blockPrefab: {fileID: 5535488404319326786, guid: 6a17d96b0d9b76940b86fd7f97d8a6e8,
-    type: 3}
-  dice: {fileID: 321650280}
-  playersData:
-  - color: {r: 1, g: 0, b: 0, a: 1}
-    type: 1
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
-  - color: {r: 0.134552, g: 0, b: 1, a: 1}
-    type: 1
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
-  - color: {r: 0, g: 1, b: 0.14216971, a: 1}
-    type: 1
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
-  - color: {r: 1, g: 0.9082564, b: 0, a: 1}
-    type: 1
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
-  player:
-    color: {r: 0, g: 0, b: 0, a: 0}
-    type: 0
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
-  players: []
---- !u!4 &1279092615
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1279092613}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1324305584
 GameObject:
@@ -519,6 +430,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 321650279}
+  - {fileID: 1905692788}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -527,3 +439,158 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1867181949
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1867181951}
+  - component: {fileID: 1867181950}
+  m_Layer: 0
+  m_Name: Visualizer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1867181950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867181949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b615a6660cef094ba47d7954f7af163, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  turnBased: 0
+  log: 0
+  ui: 1
+  onePlayer: 0
+  blocksParent: {fileID: 0}
+  blockPrefab: {fileID: 5535488404319326786, guid: 6a17d96b0d9b76940b86fd7f97d8a6e8,
+    type: 3}
+  diceLabel: {fileID: 321650280}
+  playerLabel: {fileID: 1905692786}
+  playersData:
+  - color: {r: 1, g: 0, b: 0, a: 1}
+    type: 1
+    transform: {fileID: 0}
+    dice: {fileID: 0}
+    outsParent: {fileID: 0}
+    goalsParent: {fileID: 0}
+    piecesParent: {fileID: 0}
+  - color: {r: 0.10681152, g: 0, b: 1, a: 1}
+    type: 1
+    transform: {fileID: 0}
+    dice: {fileID: 0}
+    outsParent: {fileID: 0}
+    goalsParent: {fileID: 0}
+    piecesParent: {fileID: 0}
+  player:
+    color: {r: 0, g: 0, b: 0, a: 0}
+    type: 0
+    transform: {fileID: 0}
+    dice: {fileID: 0}
+    outsParent: {fileID: 0}
+    goalsParent: {fileID: 0}
+    piecesParent: {fileID: 0}
+  players: []
+--- !u!4 &1867181951
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1867181949}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.4563673, y: -0.5676277, z: -0.20099723}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1905692785
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1905692788}
+  - component: {fileID: 1905692787}
+  - component: {fileID: 1905692786}
+  m_Layer: 5
+  m_Name: PlayerLabel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1905692786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905692785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_RaycastTarget: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+    m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
+      Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 22
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 1
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: player 0
+--- !u!222 &1905692787
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905692785}
+  m_CullTransparentMesh: 0
+--- !u!224 &1905692788
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905692785}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1353502107}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -199.27}
+  m_SizeDelta: {x: 285, y: 107.55}
+  m_Pivot: {x: 0.5, y: 0.5}

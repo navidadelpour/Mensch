@@ -22,11 +22,30 @@ public class Piece : IComparable<Piece> {
         position = index;
     }
 
+    public int CompareTo(Piece b) {
+        int compareValue = b.heuristic.CompareTo(heuristic);
+        if(compareValue == 0)
+            compareValue = index.CompareTo(b.index);
+
+        return compareValue;
+    }
+
+    public override string ToString() {
+        return String.Format("piece {0} of player {1} in position {2}", index, player.index, position);
+    }
+
     public KeyValuePair<Piece, BlockType> GetBlock(int diceNumber) {
         int nextPosition = 0;
+        Piece hitted = null;
         BlockType blockType = BlockType.NOTHING;
+        CalculateNextPositionAndBlockType(diceNumber, ref nextPosition, ref blockType);
+        hitted = CalculateHittedPiece(nextPosition, ref blockType);
+        return new KeyValuePair<Piece, BlockType>(hitted, blockType);
+    }
+
+    private void CalculateNextPositionAndBlockType(int diceNumber, ref int nextPosition, ref BlockType blockType) {
         if(isIn) {
-            nextPosition = pacesGone  + diceNumber - board.roadSize;
+            nextPosition = CalculateInGoalMovement(diceNumber);
             if(nextPosition >= 0) {
                 // reached the goal
                 if(nextPosition < board.pieceForEachPlayer) {
@@ -35,11 +54,10 @@ public class Piece : IComparable<Piece> {
                 } else {
                     // moving outside of the goal situation
                     blockType = BlockType.OUTGOAL;
-                    return new KeyValuePair<Piece, BlockType>(null, blockType);
                 }
             } else {
                 // not reached the goal
-                nextPosition = (position + diceNumber) % board.roadSize;
+                nextPosition = CalculateInRoadMovement(diceNumber);
             }
         } else if(diceNumber == 6){
             // get in proccess
@@ -47,26 +65,45 @@ public class Piece : IComparable<Piece> {
         } else {
             // not allowed
             blockType = BlockType.OUTGOAL;
-            return new KeyValuePair<Piece, BlockType>(null, blockType);
         }
-
-        foreach (Piece piece in board.inPieces)
-            if(nextPosition == piece.position && inGoal == piece.inGoal)
-                return new KeyValuePair<Piece, BlockType>(piece, player == piece.player ? BlockType.ALLY : BlockType.ENEMY);
-
-        return new KeyValuePair<Piece, BlockType>(null, blockType);
     }
 
-    public void GoForward(int diceNumber, bool inGoalArea = false) {
-        int nextPosition;
-        if(inGoalArea) {
-            nextPosition = pacesGone  + diceNumber - board.roadSize;
-            inGoal = true;
-            player.CheckForWin();
-        } else {
-            nextPosition = (position + diceNumber) % board.roadSize;
-        }
-        position = nextPosition;
+    private Piece CalculateHittedPiece(int nextPosition, ref BlockType blockType) {
+        if(blockType != BlockType.OUTGOAL)
+            foreach (Piece piece in board.inPieces){
+                if(nextPosition == piece.position) {
+                    if(piece.player == player) {
+                        if((blockType == BlockType.INGOAL) == piece.inGoal) {
+                            blockType = BlockType.ALLY;
+                            return piece;
+                        }
+                    } else {
+                        if(blockType != BlockType.INGOAL && !piece.inGoal) {
+                            blockType = BlockType.ENEMY;
+                            return piece;
+                        }
+                    }
+                }
+            }
+        return null;
+    }
+
+    private int CalculateInGoalMovement(int diceNumber) {
+        return pacesGone  + diceNumber - board.roadSize;
+    }
+
+    private int CalculateInRoadMovement(int diceNumber) {
+        return (position + diceNumber) % board.roadSize;
+    }
+
+    public void GoForward(int diceNumber) {
+        position = CalculateInRoadMovement(diceNumber);
+        pacesGone += diceNumber;
+    }
+
+    public void GoInGoal(int diceNumber) {
+        position = CalculateInGoalMovement(diceNumber);
+        inGoal = true;
         pacesGone += diceNumber;
     }
 
@@ -85,16 +122,5 @@ public class Piece : IComparable<Piece> {
         pacesGone = 0;
     }
 
-    public int CompareTo(Piece b) {
-        int compareValue = b.heuristic.CompareTo(heuristic);
-        if(compareValue == 0)
-            compareValue = index.CompareTo(b.index);
-
-        return compareValue;
-    }
-
-    public override string ToString() {
-        return String.Format("piece {0} of player {1} in position {2}", index, player.index, position);
-    }
 }
 
