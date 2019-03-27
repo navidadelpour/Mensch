@@ -9,7 +9,6 @@ public class Player {
     
     public int index;
     public Game game;
-    public int lastPosition;
     public int startPosition;
 
     public Player(Game game, int index) {
@@ -18,7 +17,6 @@ public class Player {
 
         InitPieces();
         startPosition = (index * game.board.roadSize / game.board.maxPlayers) % game.board.roadSize;
-        lastPosition = startPosition - 1 + ((startPosition - 1) < 0 ? game.board.roadSize : 0);
     }
 
     private void InitPieces() {
@@ -34,6 +32,16 @@ public class Player {
 
     public virtual void DoMove(int diceNumber) {
 
+    }
+
+    public bool CanMove(int diceNumber) {
+        for(int i = 0; i < pieces.Length; i++) {
+            KeyValuePair<Piece, BlockType> hitted = pieces[i].GetBlock(diceNumber);
+            if(pieces[i].CanMove(hitted.Value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

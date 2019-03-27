@@ -35,7 +35,7 @@ public class AIPlayer : Player {
         cause = "";
         
         // -1. negative condition
-        if(hitted.Value == BlockType.OUTGOAL || hitted.Value == BlockType.ALLY){
+        if(!piece.CanMove(hitted.Value)){
             cause += "negative condition " + hitted.Value + ", ";
             return -1;
         }

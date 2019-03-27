@@ -122,5 +122,9 @@ public class Piece : IComparable<Piece> {
         pacesGone = 0;
     }
 
+    public bool CanMove(BlockType blockType) {
+        return blockType != BlockType.OUTGOAL && blockType != BlockType.ALLY;
+    }
+
 }
 

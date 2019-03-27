@@ -41,13 +41,13 @@ public class Visualizer : MonoBehaviour {
     }
 
     void Update() {
-        Debug.Log(tasksQueue.Count);
+        // Debug.Log(tasksQueue.Count);
         if(Input.GetKeyDown(KeyCode.Space))
             if(!game.paused)
                 game.Pause();
             else
                 game.Resume();
-        if(tasksQueue.Count > 0) {
+        while(tasksQueue.Count > 0) {
             tasksQueue.Dequeue()();
         }
     }
@@ -79,82 +79,8 @@ public class Visualizer : MonoBehaviour {
         Subscribtion();
     }
 
-    public void SetupGameVisual() {
-        // setup board normal blocks
-        blocksParent = (new GameObject("Blocks")).transform;
-        Vector2 position = new Vector2(-1, -5);
-        Vector2[] directions = {
-            Vector2.up, Vector2.left, Vector2.up,
-            Vector2.right, Vector2.up, Vector2.right,
-            Vector2.down, Vector2.right, Vector2.down,
-            Vector2.left, Vector2.down, Vector2.left,
-        };
-        int repeat;
-        int index = 1;
-        for (int i = 0; i < directions.Length; i++) {
-            repeat = (i + 1) % 3 == 0 ? 2 : 4;
-            for(int j = 0; j < repeat; j++) {
-                position += directions[i];
-                GameObject block = Instantiate(blockPrefab, position, Quaternion.identity, blocksParent);
-                block.name = "block " + index;
-                index ++;
-            }
-        }
-        blocksParent.GetChild(blocksParent.childCount - 1).SetSiblingIndex(0);
-        blocksParent.GetChild(0).name = "block " + 0;
-
-
-
-        // setup players area
-        Transform playersParent = (new GameObject("Players")).transform;
-        directions = new Vector2[] {
-            Vector2.down, Vector2.left, Vector2.up, Vector2.right
-        };
-        for(int i = 0; i < playersData.Length; i++) {
-            GameObject player = new GameObject("player " + i);
-            player.transform.parent = playersParent;
-            playersData[i].transform = player.transform;
-
-            // setup dice position
-            position = (directions[i] + directions[(i + 1) % 4]) * 3;
-            GameObject dice = new GameObject("Dice Position");
-            dice.transform.position = position;
-            dice.transform.parent = player.transform;
-            playersData[i].dice = dice.transform;
-
-
-            // setup goal positions;
-            Transform goalsParent = (new GameObject("Goals")).transform;
-            goalsParent.parent = player.transform;
-            playersData[i].goalsParent = goalsParent;
-            position = directions[i] * 5;
-            for(int j = 0; j < 4; j++) {
-                position -= directions[i];
-                GameObject block = Instantiate(blockPrefab, position, Quaternion.identity, goalsParent);
-                block.name = "goal block " + j;
-                block.transform.localScale *= .5f;
-            }
-
-            // setup out positions;
-            Transform outsParent = (new GameObject("Outs")).transform;
-            outsParent.parent = player.transform;
-            playersData[i].outsParent = outsParent;
-
-            Transform piecesParent = (new GameObject("Pieces")).transform;
-            piecesParent.parent = player.transform;
-            playersData[i].piecesParent = piecesParent;
-
-            position = (directions[i] + directions[(i + 1) % 4]) * 4;
-            for(int j = 0; j < 4; j++) {
-                position += directions[(i + j) % 4];
-                GameObject block = Instantiate(blockPrefab, position, Quaternion.identity, outsParent);
-                block.name = "out block " + j;
-                GameObject piece = Instantiate(blockPrefab, position, Quaternion.identity, piecesParent);
-                piece.name = "piece " + j;
-                piece.GetComponent<SpriteRenderer>().color = playersData[i].color;
-            }
-
-        }
+    private void SetupGameVisual() {
+        GameGUI gameGui = new GameGUI(this);
     }
     
     public void Subscribtion() {
@@ -190,7 +116,7 @@ public class Visualizer : MonoBehaviour {
 
     public void OnGetOutPiece(GetOutPieceEventArgs e) {
         tasksQueue.Enqueue(new Task(() => {
-            SetToPosition(playersData[e.piece.index].piecesParent, playersData[e.piece.index].outsParent, e.piece.index, e.piece.position);
+            SetToPosition(playersData[e.piece.player.index].piecesParent, playersData[e.piece.player.index].outsParent, e.piece.player.index, e.piece.position);
         }));
     }
 
@@ -206,7 +132,7 @@ public class Visualizer : MonoBehaviour {
     public void SetToPosition(Transform fromParent, Transform toParent, int fromIndex, int toIndex) {
         Transform from = fromParent.GetChild(fromIndex);
         Transform to = toParent.GetChild(toIndex);
-        from.position = to.position;
+        from.position = to.position + Vector3.back;;
     }
 
     #endregion
