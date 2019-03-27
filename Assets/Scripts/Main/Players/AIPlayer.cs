@@ -13,9 +13,7 @@ public class AIPlayer : Player {
     }
 
     public override void DoMove(int diceNumber) {
-        Piece bestPiece = GetBestPieceByHeuristic(diceNumber);
-        UnityEngine.Debug.Log("BEST PIECE: " + bestPiece);
-        game.TryMovePiece(bestPiece);
+        game.TryMovePiece(GetBestPieceByHeuristic(diceNumber));
     }
 
     private Piece GetBestPieceByHeuristic(int diceNumber) {

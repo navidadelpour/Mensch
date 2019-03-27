@@ -20,23 +20,11 @@ public class Game {
     private int diceNumber;
     private Random randomGenerator = new Random();
 
-    #region declaring events 
-    public delegate void RollDiceHandler(RollDiceEventArgs eventArgs);
-    public event RollDiceHandler RolledDiceEvent;
-
-    public delegate void SetNextTurnHandler(SetNextTurnEventArgs eventArgs);
-    public event SetNextTurnHandler SetNextTurnEvent;
-
-    public delegate void GetInPieceHandler(GetInPieceEventArgs eventArgs);
-    public event GetInPieceHandler GetInPieceEvent;
-
-    public delegate void GetOutPieceHandler(GetOutPieceEventArgs eventArgs);
-    public event GetOutPieceHandler GetOutPieceEvent;
-    
-    public delegate void MovePieceHandler(MovePieceEventArgs eventArgs);
-    public event MovePieceHandler MovePieceEvent;
-
-    #endregion
+    public event EventHandler<RollDiceEventArgs> RolledDiceEvent;
+    public event EventHandler<SetNextTurnEventArgs> SetNextTurnEvent;
+    public event EventHandler<GetInPieceEventArgs> GetInPieceEvent;
+    public event EventHandler<GetOutPieceEventArgs> GetOutPieceEvent;
+    public event EventHandler<MovePieceEventArgs> MovePieceEvent;
 
     public Game(Board board, PlayerType[] playerTypes, bool turnBased) {
         this.board = board;
@@ -80,14 +68,14 @@ public class Game {
         shouldDice = true;
 
         // checking right player
-        if(activePlayer != piece.player) {
+        if(!piece.Belongs(activePlayer)) {
             return;
         }
 
         KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
         Piece possibleHittedPiece = hitted.Key;
         BlockType blockType = hitted.Value;
-        UnityEngine.Debug.Log(blockType.ToString()); 
+        UnityEngine.Debug.Log(blockType.ToString() + ": " + possibleHittedPiece); 
 
         // checking right move
         if(!piece.CanMove(blockType)) {
@@ -100,20 +88,24 @@ public class Game {
                 piece.GoInGoal(diceNumber);
             else
                 piece.GoForward(diceNumber);
-            MovePieceEvent(new MovePieceEventArgs(piece, diceNumber));
+            MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber));
         } else if(diceNumber == 6){
             piece.GetIn();
-            GetInPieceEvent(new GetInPieceEventArgs(piece));
+            GetInPieceEvent(this, new GetInPieceEventArgs(piece));
         }
 
         if(blockType == BlockType.ENEMY) {
             possibleHittedPiece.GetOut();
-            GetOutPieceEvent(new GetOutPieceEventArgs(possibleHittedPiece));
+            GetOutPieceEvent(this, new GetOutPieceEventArgs(possibleHittedPiece));
         }
 
-        if(!HasWinner())
+        if(!HasWinner()) {
+            if(turnBased)
+                Pause();
+            mre.WaitOne();
+
             NextTurn();
-        else {
+        } else {
             UnityEngine.Debug.Log(activePlayer.index + " win");
         }
     }
@@ -124,7 +116,11 @@ public class Game {
         shouldDice = false;
 
         ThrowDice();
-        RolledDiceEvent(new RollDiceEventArgs(diceNumber, activePlayer));
+        RolledDiceEvent(this, new RollDiceEventArgs(diceNumber, activePlayer));
+        if(turnBased)
+            Pause();
+        mre.WaitOne();
+
         if(activePlayer.CanMove(diceNumber))
             activePlayer.DoMove(diceNumber);
         else
@@ -134,13 +130,10 @@ public class Game {
     private void NextTurn() {
         if(end)
             return;
-        mre.WaitOne();
-        if(turnBased)
-            Pause();
 
         if(diceNumber != 6){
             SetNextPlayer();
-            SetNextTurnEvent(new SetNextTurnEventArgs(activePlayer));
+            SetNextTurnEvent(this, new SetNextTurnEventArgs(activePlayer));
         }
 
         shouldDice = true;

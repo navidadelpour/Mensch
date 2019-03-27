@@ -2,14 +2,14 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class GameGUI {
+public class GameGUIMaker {
 
     private Visualizer visualizer;
     private Transform playersParent;
     private GameObject player;
     private Vector2[] directions;
 
-    public GameGUI(Visualizer visualizer) {
+    public GameGUIMaker(Visualizer visualizer) {
         this.visualizer = visualizer;
         SetupRoadBlocks();
         SetupPlayerArea();

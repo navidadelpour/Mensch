@@ -22,7 +22,6 @@ public class Visualizer : MonoBehaviour {
     Board board;
     public Game game;
     Thread gameThread;
-    Thread mainThread;
 
     public delegate void Task();
     Queue<Task> tasksQueue = new Queue<Task>();
@@ -32,22 +31,20 @@ public class Visualizer : MonoBehaviour {
             gameObject.AddComponent(typeof(Logger));
 
         if(ui)
-            SetupGameVisual();
+            new GameGUIMaker(this);
 
-        Thread mainThread = Thread.CurrentThread;
 
         SetupGameLogic();
         gameThread = game.Start();
     }
 
     void Update() {
-        // Debug.Log(tasksQueue.Count);
         if(Input.GetKeyDown(KeyCode.Space))
             if(!game.paused)
                 game.Pause();
             else
                 game.Resume();
-        while(tasksQueue.Count > 0) {
+        if(tasksQueue.Count > 0) {
             tasksQueue.Dequeue()();
         }
     }
@@ -79,28 +76,21 @@ public class Visualizer : MonoBehaviour {
         Subscribtion();
     }
 
-    private void SetupGameVisual() {
-        GameGUI gameGui = new GameGUI(this);
-    }
-    
     public void Subscribtion() {
-        game.RolledDiceEvent += new Game.RollDiceHandler(OnRolledDice);
-        game.SetNextTurnEvent += new Game.SetNextTurnHandler(OnSetNextPlayer);
-        game.GetInPieceEvent += new Game.GetInPieceHandler(OnGetInPiece);
-        game.GetOutPieceEvent += new Game.GetOutPieceHandler(OnGetOutPiece);
-        game.MovePieceEvent += new Game.MovePieceHandler(OnMovePiece);
+        game.RolledDiceEvent += new EventHandler<RollDiceEventArgs>(OnRolledDice);
+        game.SetNextTurnEvent += new EventHandler<SetNextTurnEventArgs>(OnSetNextPlayer);
+        game.GetInPieceEvent += new EventHandler<GetInPieceEventArgs>(OnGetInPiece);
+        game.GetOutPieceEvent += new EventHandler<GetOutPieceEventArgs>(OnGetOutPiece);
+        game.MovePieceEvent += new EventHandler<MovePieceEventArgs>(OnMovePiece);
     }
     
-    // FIXME: thread problems with unity API
-    #region event listeners
-    
-    public void OnRolledDice(RollDiceEventArgs e) {
+    public void OnRolledDice(object obj, RollDiceEventArgs e) {
         tasksQueue.Enqueue(new Task(() => {
             diceLabel.text = e.diceNumber.ToString();
         }));
     }
 
-    public void OnSetNextPlayer(SetNextTurnEventArgs e) {
+    public void OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
         tasksQueue.Enqueue(new Task(() => {
             player = playersData[e.player.index];
             playerLabel.text = "Player " + e.player.index;
@@ -108,23 +98,23 @@ public class Visualizer : MonoBehaviour {
         }));
     }
 
-    public void OnGetInPiece(GetInPieceEventArgs e) {
+    public void OnGetInPiece(object obj, GetInPieceEventArgs e) {
         tasksQueue.Enqueue(new Task(() => {
             SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
         }));
     }
 
-    public void OnGetOutPiece(GetOutPieceEventArgs e) {
+    public void OnGetOutPiece(object obj, GetOutPieceEventArgs e) {
         tasksQueue.Enqueue(new Task(() => {
-            SetToPosition(playersData[e.piece.player.index].piecesParent, playersData[e.piece.player.index].outsParent, e.piece.player.index, e.piece.position);
+            SetToPosition(playersData[e.piece.player.index].piecesParent, playersData[e.piece.player.index].outsParent, e.piece.index, e.piece.position);
         }));
     }
 
-    public void OnMovePiece(MovePieceEventArgs e) {
-        Transform t = blocksParent;
-        if(e.piece.inGoal)
-            t = player.goalsParent;
+    public void OnMovePiece(object obj, MovePieceEventArgs e) {
         tasksQueue.Enqueue(new Task(() => {
+            Transform t = blocksParent;
+            if(e.piece.inGoal)
+                t = player.goalsParent;
             SetToPosition(player.piecesParent, t, e.piece.index, e.piece.position);
         }));
     }
@@ -134,8 +124,6 @@ public class Visualizer : MonoBehaviour {
         Transform to = toParent.GetChild(toIndex);
         from.position = to.position + Vector3.back;;
     }
-
-    #endregion
 
     public void OnPieceClick() {
         // TODO: fetch piece data

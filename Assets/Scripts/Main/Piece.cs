@@ -69,10 +69,10 @@ public class Piece : IComparable<Piece> {
     }
 
     private Piece CalculateHittedPiece(int nextPosition, ref BlockType blockType) {
-        if(blockType != BlockType.OUTGOAL)
-            foreach (Piece piece in board.inPieces){
+        if(blockType != BlockType.OUTGOAL) {
+            foreach (Piece piece in board.inPieces) {
                 if(nextPosition == piece.position) {
-                    if(piece.player == player) {
+                    if(piece.Belongs(player)) {
                         if((blockType == BlockType.INGOAL) == piece.inGoal) {
                             blockType = BlockType.ALLY;
                             return piece;
@@ -85,6 +85,7 @@ public class Piece : IComparable<Piece> {
                     }
                 }
             }
+        }
         return null;
     }
 
@@ -124,6 +125,10 @@ public class Piece : IComparable<Piece> {
 
     public bool CanMove(BlockType blockType) {
         return blockType != BlockType.OUTGOAL && blockType != BlockType.ALLY;
+    }
+
+    public bool Belongs(Player player) {
+        return this.player == player;
     }
 
 }

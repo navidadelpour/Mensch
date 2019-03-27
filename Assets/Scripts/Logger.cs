@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class Logger : MonoBehaviour {
 
@@ -10,38 +11,38 @@ public class Logger : MonoBehaviour {
     }
 
     public void Subscribtion() {
-        game.RolledDiceEvent += new Game.RollDiceHandler(OnRolledDice);
-        game.SetNextTurnEvent += new Game.SetNextTurnHandler(OnSetNextPlayer);
-        game.GetInPieceEvent += new Game.GetInPieceHandler(OnGetInPiece);
-        game.GetOutPieceEvent += new Game.GetOutPieceHandler(OnGetOutPiece);
-        game.MovePieceEvent += new Game.MovePieceHandler(OnMovePiece);
+        game.RolledDiceEvent += new EventHandler<RollDiceEventArgs>(OnRolledDice);
+        game.SetNextTurnEvent += new EventHandler<SetNextTurnEventArgs>(OnSetNextPlayer);
+        game.GetInPieceEvent += new EventHandler<GetInPieceEventArgs>(OnGetInPiece);
+        game.GetOutPieceEvent += new EventHandler<GetOutPieceEventArgs>(OnGetOutPiece);
+        game.MovePieceEvent += new EventHandler<MovePieceEventArgs>(OnMovePiece);
     }
 
 
-    public void OnRolledDice(RollDiceEventArgs e) {
-        Debug.LogFormat("DICE: player {0} dice {1}",
-            e.player.index, e.diceNumber);
+    public void OnRolledDice(object obj, RollDiceEventArgs e) {
+        Debug.LogFormat("DICE: dice {0}",
+            e.diceNumber);
     }
 
-    public void OnSetNextPlayer(SetNextTurnEventArgs e) {
+    public void OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
         Debug.Log("----------------------------------------------------------------");
         Debug.LogFormat("ACTIVE: player {0}",
             e.player.index);
     }
 
-    public void OnGetInPiece(GetInPieceEventArgs e) {
-        Debug.LogFormat("GET IN: player {0} piece {1} position {2}",
-            e.piece.player.index, e.piece.index, e.piece.position);
+    public void OnGetInPiece(object obj, GetInPieceEventArgs e) {
+        Debug.LogFormat("GET IN: piece {0} position {1}",
+            e.piece.index, e.piece.position);
     }
 
-    public void OnGetOutPiece(GetOutPieceEventArgs e) {
-        Debug.LogFormat("GET OUT: player {0} piece {1}",
-            e.piece.player.index, e.piece.index);
+    public void OnGetOutPiece(object obj, GetOutPieceEventArgs e) {
+        Debug.LogFormat("GET OUT: piece {0} position {1}",
+            e.piece.index, e.piece.position);
     }
 
-    public void OnMovePiece(MovePieceEventArgs e) {
-        Debug.LogFormat("MOVE:player {0} piece {1} position {2}",
-            e.piece.player.index, e.piece.index, e.piece.position);
+    public void OnMovePiece(object obj, MovePieceEventArgs e) {
+        Debug.LogFormat("MOVE: piece {0} position {1}",
+            e.piece.index, e.piece.position);
     }
 
 }
