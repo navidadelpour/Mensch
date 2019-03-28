@@ -27,11 +27,21 @@ public class Player {
     }
 
     public virtual void DoDice() {
-        
+        game.waitingForUserToDice = true;
+        while(game.waitingForUserToDice) {
+            game.internalDelay.WaitOne(200);
+        }
+        game.waitingForUserToDice = true;
+        game.TryThrowDice();
     }
 
     public virtual void DoMove(int diceNumber) {
-
+        game.waitingForUserToMove = true;
+        while(game.waitingForUserToMove) {
+            game.internalDelay.WaitOne(200);
+        }
+        game.waitingForUserToMove = true;
+        game.TryMovePiece(game.playerSelectedPiece);
     }
 
     public bool CanMove(int diceNumber) {

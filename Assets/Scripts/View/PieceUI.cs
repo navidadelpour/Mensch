@@ -19,6 +19,6 @@ public class PieceUI : MonoBehaviour
     public void OnClick(GameObject piece) {
         int pieceIndex = piece.transform.GetSiblingIndex();
         int playerIndex = piece.transform.parent.parent.GetSiblingIndex();
-        Visualizer.instance.game.TryMovePiece(playerIndex, pieceIndex);
+        Visualizer.instance.game.AttemptMovePieceFromUser(playerIndex, pieceIndex);
     }
 }

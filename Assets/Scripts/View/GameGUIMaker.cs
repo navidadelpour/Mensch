@@ -44,7 +44,7 @@ public class GameGUIMaker {
         directions = new Vector2[] {
             Vector2.down, Vector2.left, Vector2.up, Vector2.right
         };
-        for(int i = 0; i < visualizer.playersData.Length; i++) {
+        for(int i = 0; i < 4; i++) {
             SetupPlayer(i);
             SetupDicePosition(i);
             SetupGoalBlocks(i);
@@ -55,7 +55,8 @@ public class GameGUIMaker {
     private void SetupPlayer(int i) {
         player = new GameObject("player " + i);
         player.transform.parent = playersParent;
-        visualizer.playersData[i].transform = player.transform;
+        if(i < visualizer.playersData.Length)
+            visualizer.playersData[i].transform = player.transform;
     }
 
     private void SetupDicePosition(int i) {
@@ -63,13 +64,15 @@ public class GameGUIMaker {
         GameObject dice = new GameObject("Dice Position");
         dice.transform.position = position;
         dice.transform.parent = player.transform;
-        visualizer.playersData[i].dice = dice.transform;
+        if(i < visualizer.playersData.Length)
+            visualizer.playersData[i].dice = dice.transform;
     }
 
     private void SetupGoalBlocks(int i) {
         Transform goalsParent = (new GameObject("Goals")).transform;
         goalsParent.parent = player.transform;
-        visualizer.playersData[i].goalsParent = goalsParent;
+        if(i < visualizer.playersData.Length)
+            visualizer.playersData[i].goalsParent = goalsParent;
         Vector2 position = directions[i] * 5;
         for(int j = 0; j < 4; j++) {
             position -= directions[i];
@@ -83,21 +86,25 @@ public class GameGUIMaker {
     private void SetupOutAndPiecesBlocks(int i) {
         Transform outsParent = (new GameObject("Outs")).transform;
         outsParent.parent = player.transform;
-        visualizer.playersData[i].outsParent = outsParent;
+        if(i < visualizer.playersData.Length)
+            visualizer.playersData[i].outsParent = outsParent;
 
         Transform piecesParent = (new GameObject("Pieces")).transform;
         piecesParent.parent = player.transform;
-        visualizer.playersData[i].piecesParent = piecesParent;
+        if(i < visualizer.playersData.Length)
+            visualizer.playersData[i].piecesParent = piecesParent;
 
         Vector2 position = (directions[i] + directions[(i + 1) % 4]) * 4;
         for(int j = 0; j < 4; j++) {
             position += directions[(i + j) % 4];
             GameObject block = MonoBehaviour.Instantiate(visualizer.blockPrefab, position, Quaternion.identity, outsParent);
             block.name = "out block " + j;
-            GameObject piece = MonoBehaviour.Instantiate(visualizer.piecePrefab, position, Quaternion.identity, piecesParent);
-            piece.name = "piece " + j;
-            piece.GetComponent<SpriteRenderer>().color = visualizer.playersData[i].color;
-            piece.transform.position += Vector3.back;
+            if(i < visualizer.playersData.Length) {
+                GameObject piece = MonoBehaviour.Instantiate(visualizer.piecePrefab, position, Quaternion.identity, piecesParent);
+                piece.name = "piece " + j;
+                piece.GetComponent<SpriteRenderer>().color = visualizer.playersData[i].color;
+                piece.transform.position += Vector3.back;
+            }
         }
     }
 

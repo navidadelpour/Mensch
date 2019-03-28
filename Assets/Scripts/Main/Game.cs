@@ -6,16 +6,22 @@ using System.Threading;
 public class Game {
 
     private Thread thread;
-    private ManualResetEvent mre;
+    public ManualResetEvent internalDelay;
+    private ManualResetEvent externalDelay;
+
+    private int delayTime;
 
     public bool end;
     public bool paused;
+    public bool waitingForUserToDice = true;
+    public bool waitingForUserToMove = true;
     private bool turnBased;
     private bool shouldDice = true;
 
     public Board board;
     private Player activePlayer;
     public Player[] players;
+    public Piece playerSelectedPiece;
 
     private int diceNumber;
     private Random randomGenerator = new Random();
@@ -29,6 +35,7 @@ public class Game {
     public Game(Board board, PlayerType[] playerTypes, bool turnBased) {
         this.board = board;
         this.turnBased = turnBased;
+        delayTime = 300;
 
         InitPlayers(playerTypes);
     }
@@ -42,46 +49,55 @@ public class Game {
 
     public Thread Start() {
         thread = new Thread(new ThreadStart(NextTurn));
-        mre = new ManualResetEvent(true);
+        thread.Name = "GameThread";
+        externalDelay = new ManualResetEvent(true);
+        internalDelay = new ManualResetEvent(false);
         thread.Start();
         return thread;
     }
 
     public void Pause() {
         paused = true;
-        mre.Reset();
+        externalDelay.Reset();
     }
 
     public void Resume() {
         paused = false;
-        mre.Set();
+        externalDelay.Set();
     }
 
     public void End() {
         end = true;
     }
 
-    public void TryMovePiece(int playerIndex, int pieceIndex) {
-        TryMovePiece(players[playerIndex].pieces[pieceIndex]);
+    // called from main thread
+    public void AttemptMovePieceFromUser(int playerIndex, int pieceIndex) {
+        UnityEngine.Debug.LogFormat("move, m: {0}, d: {1}", waitingForUserToMove, waitingForUserToDice);
+        if(waitingForUserToMove) {
+            playerSelectedPiece = players[playerIndex].pieces[pieceIndex];
+            waitingForUserToMove = false;
+        }
+    }
+
+    // called from main thread
+    public void AttemptThrowDiceFromUser() {
+        UnityEngine.Debug.LogFormat("dice, m: {0}, d: {1}", waitingForUserToMove, waitingForUserToDice);
+        if(waitingForUserToDice) {
+            waitingForUserToDice = false;
+        }
     }
 
     public void TryMovePiece(Piece piece) {
-        // checking right state
-        if(shouldDice)
-            return;
-
-        // checking right player
-        if(!piece.Belongs(activePlayer)) {
-            return;
-        }
 
         KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
         Piece possibleHittedPiece = hitted.Key;
         BlockType blockType = hitted.Value;
         UnityEngine.Debug.Log(blockType.ToString() + ": " + possibleHittedPiece); 
 
-        // checking right move
-        if(!piece.CanMove(blockType)) {
+
+        if(shouldDice || !piece.Belongs(activePlayer) || !piece.CanMove(blockType)) {
+            waitingForUserToMove = true;
+            activePlayer.DoMove(diceNumber);
             return;
         }
 
@@ -92,22 +108,22 @@ public class Game {
             else
                 piece.GoForward(diceNumber);
             MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber));
+            internalDelay.WaitOne(delayTime);
         } else if(diceNumber == 6){
             piece.GetIn();
             GetInPieceEvent(this, new GetInPieceEventArgs(piece));
+            internalDelay.WaitOne(delayTime);
         }
 
+        // hit enemy
         if(blockType == BlockType.ENEMY) {
             possibleHittedPiece.GetOut();
             GetOutPieceEvent(this, new GetOutPieceEventArgs(possibleHittedPiece));
+            internalDelay.WaitOne(delayTime);
         }
 
         shouldDice = true;
         if(!HasWinner()) {
-            if(turnBased)
-                Pause();
-            mre.WaitOne();
-
             NextTurn();
         } else {
             UnityEngine.Debug.Log(activePlayer.index + " win");
@@ -115,15 +131,14 @@ public class Game {
     }
 
     public void TryThrowDice() {
+        externalDelay.WaitOne();
         if(!shouldDice)
             return;
         shouldDice = false;
 
         ThrowDice();
         RolledDiceEvent(this, new RollDiceEventArgs(diceNumber, activePlayer));
-        if(turnBased)
-            Pause();
-        mre.WaitOne();
+        internalDelay.WaitOne(delayTime);
 
         if(activePlayer.CanMove(diceNumber))
             activePlayer.DoMove(diceNumber);
@@ -132,12 +147,14 @@ public class Game {
     }
 
     private void NextTurn() {
+        externalDelay.WaitOne();
         if(end)
             return;
 
         if(diceNumber != 6){
             SetNextPlayer();
             SetNextTurnEvent(this, new SetNextTurnEventArgs(activePlayer));
+            internalDelay.WaitOne(delayTime);
         }
 
         shouldDice = true;

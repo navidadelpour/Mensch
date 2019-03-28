@@ -20,14 +20,13 @@ public class Visualizer : MonoBehaviour {
     public Text playerLabel;
 
     public PlayerData[] playersData;
-    [HideInInspector] public PlayerData player;
+    private PlayerData player;
     public Player[] players;
     Board board;
     public Game game;
-    Thread gameThread;
-
-    public delegate void Task();
-    Queue<Task> tasksQueue = new Queue<Task>();
+    public Thread gameThread;
+    public Thread mainThread;
+    public TaskManager taskManager;
 
     void Awake() {
         if(instance == null) {
@@ -42,8 +41,12 @@ public class Visualizer : MonoBehaviour {
         if(ui)
             new GameGUIMaker(this);
 
-
+        mainThread = Thread.CurrentThread;
+        // mainThread.Name = "MainThread";
+        
         SetupGameLogic();
+        taskManager = new TaskManager();
+        gameObject.AddComponent(typeof(EventListenersManager));
         gameThread = game.Start();
     }
 
@@ -53,13 +56,18 @@ public class Visualizer : MonoBehaviour {
                 game.Pause();
             else
                 game.Resume();
-        if(tasksQueue.Count > 0) {
-            tasksQueue.Dequeue()();
+
+
+        if(taskManager.HasTask()) {
+            // game.Pause();
+            Debug.Log("tasks: " + taskManager.TasksCount());
+            taskManager.Do();
+            // game.Resume();
         }
     }
 
     private void OnApplicationQuit() {
-        Debug.Log("Quiting with " + tasksQueue.Count + " task");
+        Debug.Log("Quiting with " + taskManager.TasksCount() + " task");
         game.End();
     }
 
@@ -82,61 +90,90 @@ public class Visualizer : MonoBehaviour {
         players = game.players;
         player = playersData[0];
 
-        Subscribtion();
     }
 
-    public void Subscribtion() {
-        game.RolledDiceEvent += new EventHandler<RollDiceEventArgs>(OnRolledDice);
-        game.SetNextTurnEvent += new EventHandler<SetNextTurnEventArgs>(OnSetNextPlayer);
-        game.GetInPieceEvent += new EventHandler<GetInPieceEventArgs>(OnGetInPiece);
-        game.GetOutPieceEvent += new EventHandler<GetOutPieceEventArgs>(OnGetOutPiece);
-        game.MovePieceEvent += new EventHandler<MovePieceEventArgs>(OnMovePiece);
-    }
-    
-    public void OnRolledDice(object obj, RollDiceEventArgs e) {
-        tasksQueue.Enqueue(new Task(() => {
-            diceLabel.text = e.diceNumber.ToString();
-        }));
+    public IEnumerator OnRolledDice(object obj, RollDiceEventArgs e) {
+        taskManager.taskRunning = true;
+        game.Pause();
+
+        diceLabel.text = "";
+        for(int i = 0; i < 6; i++) {
+            yield return new WaitForSeconds(.1f);
+            diceLabel.text += ".";
+        }
+        diceLabel.text = e.diceNumber.ToString();
+        yield return new WaitForSeconds(1f);
+
+        game.Resume();
+        taskManager.taskRunning = false;
     }
 
-    public void OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
-        tasksQueue.Enqueue(new Task(() => {
-            player = playersData[e.player.index];
-            playerLabel.text = "Player " + e.player.index;
-            playerLabel.color = player.color;
-        }));
+    public IEnumerator OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
+        taskManager.taskRunning = true;
+        game.Pause();
+
+        diceLabel.text = "O";
+        playerLabel.text = "setting...";
+        yield return new WaitForSeconds(.5f);
+        player = playersData[e.player.index];
+        playerLabel.text = "Player " + e.player.index;
+        playerLabel.color = player.color;
+        yield return new WaitForSeconds(.5f);
+
+        game.Resume();
+        taskManager.taskRunning = false;
     }
 
-    public void OnGetInPiece(object obj, GetInPieceEventArgs e) {
-        tasksQueue.Enqueue(new Task(() => {
-            SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
-        }));
+    public IEnumerator OnGetInPiece(object obj, GetInPieceEventArgs e) {
+        taskManager.taskRunning = true;
+        game.Pause();
+
+        yield return new WaitForSeconds(1f);
+        SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
+
+        game.Resume();
+        taskManager.taskRunning = false;
     }
 
-    public void OnGetOutPiece(object obj, GetOutPieceEventArgs e) {
-        tasksQueue.Enqueue(new Task(() => {
-            SetToPosition(playersData[e.piece.player.index].piecesParent, playersData[e.piece.player.index].outsParent, e.piece.index, e.piece.position);
-        }));
+    public IEnumerator OnGetOutPiece(object obj, GetOutPieceEventArgs e) {
+        taskManager.taskRunning = true;
+        game.Pause();
+
+        yield return new WaitForSeconds(1f);
+        SetToPosition(playersData[e.piece.player.index].piecesParent, playersData[e.piece.player.index].outsParent, e.piece.index, e.piece.position);
+        
+        game.Resume();
+        taskManager.taskRunning = false;
     }
 
-    public void OnMovePiece(object obj, MovePieceEventArgs e) {
-        tasksQueue.Enqueue(new Task(() => {
-            Transform t = blocksParent;
-            if(e.piece.inGoal)
-                t = player.goalsParent;
-            SetToPosition(player.piecesParent, t, e.piece.index, e.piece.position);
-        }));
+    public IEnumerator OnMovePiece(object obj, MovePieceEventArgs e) {
+        taskManager.taskRunning = true;
+        game.Pause();
+
+        yield return new WaitForSeconds(1f);
+        Transform t = blocksParent;
+        if(e.piece.inGoal)
+            t = player.goalsParent;
+        SetToPosition(player.piecesParent, t, e.piece.index, e.piece.position);
+
+        game.Resume();
+        taskManager.taskRunning = false;
     }
 
     public void SetToPosition(Transform fromParent, Transform toParent, int fromIndex, int toIndex) {
-        Transform from = fromParent.GetChild(fromIndex);
-        Transform to = toParent.GetChild(toIndex);
-        from.position = to.position + Vector3.back;;
+        try{
+            Transform from = fromParent.GetChild(fromIndex);
+            Transform to = toParent.GetChild(toIndex);
+            from.position = to.position + Vector3.back;
+        } catch (Exception e) {
+            Debug.LogError(e.Message);
+            Debug.Log(fromIndex);
+            Debug.Log(toIndex);
+        }
     }
 
     public void OnDiceClick() {
-        Debug.Log("HUMAN DICE");
-        game.TryThrowDice();
+        game.AttemptThrowDiceFromUser();
     }
 
 }

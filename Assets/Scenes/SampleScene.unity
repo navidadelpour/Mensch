@@ -565,15 +565,8 @@ MonoBehaviour:
     outsParent: {fileID: 0}
     goalsParent: {fileID: 0}
     piecesParent: {fileID: 0}
-  player:
-    color: {r: 0, g: 0, b: 0, a: 0}
-    type: 0
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
   players: []
+  eventListenersManager: {fileID: 0}
 --- !u!4 &1867181951
 Transform:
   m_ObjectHideFlags: 0
