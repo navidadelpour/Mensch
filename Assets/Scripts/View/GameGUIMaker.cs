@@ -94,7 +94,7 @@ public class GameGUIMaker {
             position += directions[(i + j) % 4];
             GameObject block = MonoBehaviour.Instantiate(visualizer.blockPrefab, position, Quaternion.identity, outsParent);
             block.name = "out block " + j;
-            GameObject piece = MonoBehaviour.Instantiate(visualizer.blockPrefab, position, Quaternion.identity, piecesParent);
+            GameObject piece = MonoBehaviour.Instantiate(visualizer.piecePrefab, position, Quaternion.identity, piecesParent);
             piece.name = "piece " + j;
             piece.GetComponent<SpriteRenderer>().color = visualizer.playersData[i].color;
             piece.transform.position += Vector3.back;

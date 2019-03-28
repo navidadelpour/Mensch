@@ -61,11 +61,14 @@ public class Game {
         end = true;
     }
 
+    public void TryMovePiece(int playerIndex, int pieceIndex) {
+        TryMovePiece(players[playerIndex].pieces[pieceIndex]);
+    }
+
     public void TryMovePiece(Piece piece) {
         // checking right state
         if(shouldDice)
             return;
-        shouldDice = true;
 
         // checking right player
         if(!piece.Belongs(activePlayer)) {
@@ -99,6 +102,7 @@ public class Game {
             GetOutPieceEvent(this, new GetOutPieceEventArgs(possibleHittedPiece));
         }
 
+        shouldDice = true;
         if(!HasWinner()) {
             if(turnBased)
                 Pause();

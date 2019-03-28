@@ -7,12 +7,15 @@ using System.Collections.Generic;
 
 public class Visualizer : MonoBehaviour {
 
+    public static Visualizer instance;
+
     public bool turnBased;
     public bool log;
     public bool ui;
     public bool onePlayer;
     [HideInInspector] public Transform blocksParent;
     public GameObject blockPrefab;
+    public GameObject piecePrefab;
     public Text diceLabel;
     public Text playerLabel;
 
@@ -25,6 +28,12 @@ public class Visualizer : MonoBehaviour {
 
     public delegate void Task();
     Queue<Task> tasksQueue = new Queue<Task>();
+
+    void Awake() {
+        if(instance == null) {
+            instance = this;
+        }
+    }
 
     void Start() {
         if(log)
@@ -125,13 +134,9 @@ public class Visualizer : MonoBehaviour {
         from.position = to.position + Vector3.back;;
     }
 
-    public void OnPieceClick() {
-        // TODO: fetch piece data
-        // game.MovePiece(null);
-    }
-
     public void OnDiceClick() {
-        // game.RollDice();
+        Debug.Log("HUMAN DICE");
+        game.TryThrowDice();
     }
 
 }
