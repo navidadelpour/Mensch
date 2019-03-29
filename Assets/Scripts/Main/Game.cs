@@ -35,7 +35,7 @@ public class Game {
     public Game(Board board, PlayerType[] playerTypes, bool turnBased) {
         this.board = board;
         this.turnBased = turnBased;
-        delayTime = 300;
+        delayTime = 500;
 
         InitPlayers(playerTypes);
     }
