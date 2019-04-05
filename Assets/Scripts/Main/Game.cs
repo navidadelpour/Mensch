@@ -90,6 +90,7 @@ public class Game {
     }
 
     public void TryMovePiece(Piece piece) {
+        externalDelay.WaitOne();
 
         KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
         Piece possibleHittedPiece = hitted.Key;
@@ -105,11 +106,8 @@ public class Game {
 
         // start moving
         if(piece.isIn) {
-            if(blockType == BlockType.INGOAL)
-                piece.GoInGoal(diceNumber);
-            else
-                piece.GoForward(diceNumber);
-            MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber));
+            KeyValuePair<int[], int> stepsData = piece.Go(blockType, diceNumber);
+            MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber, stepsData.Key, stepsData.Value));
             internalDelay.WaitOne(delayTime);
         } else if(diceNumber == 6){
             piece.GetIn();

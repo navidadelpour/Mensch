@@ -4,16 +4,21 @@ using UnityEngine;
 
 public class PieceUI : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    private float speed = 5;
+    public float moveDelay = .2f;
+
+    IEnumerator Move(Vector3 destination) {
+        while(transform.position != destination) {
+            transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * speed);
+            yield return new WaitForFixedUpdate();
+        }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public IEnumerator StepMove(Transform[] steps) {
+        for(int i = 0; i < steps.Length; i++) {
+            yield return StartCoroutine(Move(steps[i].position));
+            yield return new WaitForSeconds(moveDelay);
+        }
     }
 
     public void OnClick(GameObject piece) {

@@ -540,9 +540,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   turnBased: 0
-  log: 0
+  log: 1
   ui: 1
-  onePlayer: 0
   blocksParent: {fileID: 0}
   blockPrefab: {fileID: 5535488404319326786, guid: 6a17d96b0d9b76940b86fd7f97d8a6e8,
     type: 3}
@@ -552,21 +551,28 @@ MonoBehaviour:
   playerLabel: {fileID: 1905692786}
   playersData:
   - color: {r: 1, g: 0, b: 0, a: 1}
-    type: 1
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
-  - color: {r: 0.10681152, g: 0, b: 1, a: 1}
     type: 0
     transform: {fileID: 0}
     dice: {fileID: 0}
     outsParent: {fileID: 0}
     goalsParent: {fileID: 0}
     piecesParent: {fileID: 0}
+  - color: {r: 0.10681152, g: 0, b: 1, a: 1}
+    type: 2
+    transform: {fileID: 0}
+    dice: {fileID: 0}
+    outsParent: {fileID: 0}
+    goalsParent: {fileID: 0}
+    piecesParent: {fileID: 0}
   - color: {r: 1, g: 0.8741453, b: 0, a: 1}
-    type: 1
+    type: 0
+    transform: {fileID: 0}
+    dice: {fileID: 0}
+    outsParent: {fileID: 0}
+    goalsParent: {fileID: 0}
+    piecesParent: {fileID: 0}
+  - color: {r: 0, g: 1, b: 0.06733799, a: 1}
+    type: 0
     transform: {fileID: 0}
     dice: {fileID: 0}
     outsParent: {fileID: 0}

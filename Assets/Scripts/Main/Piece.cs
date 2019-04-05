@@ -90,22 +90,32 @@ public class Piece : IComparable<Piece> {
     }
 
     private int CalculateInGoalMovement(int diceNumber) {
-        return pacesGone  + diceNumber - board.roadSize;
+        return pacesGone + diceNumber - board.roadSize;
     }
 
     private int CalculateInRoadMovement(int diceNumber) {
         return (position + diceNumber) % board.roadSize;
     }
 
-    public void GoForward(int diceNumber) {
-        position = CalculateInRoadMovement(diceNumber);
-        pacesGone += diceNumber;
-    }
+    public KeyValuePair<int[], int> Go(BlockType blockType, int diceNumber) {
+        Func<int, int> calculateMovement = CalculateInRoadMovement;
+        int[] steps = new int[diceNumber];
+        int inGoalIndex = -1;
+        inGoal = inGoal || blockType == BlockType.INGOAL;
 
-    public void GoInGoal(int diceNumber) {
-        position = CalculateInGoalMovement(diceNumber);
-        inGoal = true;
+        for(int i = 0; i < diceNumber; i++) { 
+            steps[i] = calculateMovement(i + 1);
+            if(inGoalIndex == -1 && inGoal && (pacesGone >= board.roadSize || steps[i] >= player.startPosition)) {
+                inGoalIndex = i;
+                calculateMovement = CalculateInGoalMovement;
+                steps[i] = CalculateInGoalMovement(i + 1);
+            }
+        }
+
+        position = calculateMovement(diceNumber);
         pacesGone += diceNumber;
+
+        return new KeyValuePair<int[], int>(steps, inGoalIndex);
     }
 
     public void GetIn() {
