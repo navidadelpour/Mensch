@@ -12,7 +12,6 @@ public class Visualizer : MonoBehaviour {
     public bool turnBased;
     public bool log;
     public bool ui;
-    public bool onePlayer;
     [HideInInspector] public Transform blocksParent;
     public GameObject blockPrefab;
     public GameObject piecePrefab;
@@ -35,6 +34,8 @@ public class Visualizer : MonoBehaviour {
     }
 
     void Start() {
+        if(DataForGameScene.isValid)
+            playersData = DataForGameScene.playersData;
         if(log)
             gameObject.AddComponent(typeof(Logger));
 
@@ -81,8 +82,8 @@ public class Visualizer : MonoBehaviour {
     }
 
     public void SetupGameLogic() {
-        PlayerType[] playerTypes = new PlayerType[onePlayer ? 1 : playersData.Length];
-        for(int i = 0; i < (onePlayer ? 1 : playersData.Length); i++)
+        PlayerType[] playerTypes = new PlayerType[playersData.Length];
+        for(int i = 0; i < playersData.Length; i++)
             playerTypes[i] = playersData[i].type;
 
         board = new Board(4, 40, 4);

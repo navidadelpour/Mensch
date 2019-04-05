@@ -12,4 +12,9 @@ public class PlayerData {
     [HideInInspector] public Transform goalsParent;
     [HideInInspector] public Transform piecesParent;
 
+    public PlayerData(PlayerType type, Color color) {
+        this.type = type;
+        this.color = color;
+    }
+
 }

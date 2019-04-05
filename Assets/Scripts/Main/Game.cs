@@ -41,10 +41,12 @@ public class Game {
     }
 
     private void InitPlayers(PlayerType[] playerTypes) {
-        players = new Player[playerTypes.Length];
+        List<Player> playersList = new List<Player>();
         for(int i = 0; i < playerTypes.Length; i++) {
-            players[i] = PlayerFactory.Create(playerTypes[i], this, i);
+            if(playerTypes[i] != PlayerType.NOTHING)
+                playersList.Add(PlayerFactory.Create(playerTypes[i], this, i));
         }
+        players = playersList.ToArray();
     }
 
     public Thread Start() {
