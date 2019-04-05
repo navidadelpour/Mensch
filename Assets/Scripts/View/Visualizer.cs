@@ -94,67 +94,38 @@ public class Visualizer : MonoBehaviour {
     }
 
     public IEnumerator OnRolledDice(object obj, RollDiceEventArgs e) {
-        taskManager.taskRunning = true;
-        game.Pause();
-
         diceLabel.text = "";
+        yield return new WaitForSeconds(.2f);
         for(int i = 0; i < 6; i++) {
             yield return new WaitForSeconds(.1f);
             diceLabel.text += ".";
         }
         diceLabel.text = e.diceNumber.ToString();
-
-        game.Resume();
-        taskManager.taskRunning = false;
+        yield return new WaitForSeconds(.2f);
     }
 
     public IEnumerator OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
-        taskManager.taskRunning = true;
-        game.Pause();
-
         diceLabel.text = "O";
         playerLabel.text = "setting...";
-        yield return new WaitForSeconds(.3f);
+        yield return new WaitForSeconds(.5f);
         player = playersData[e.player.index];
         playerLabel.text = "Player " + e.player.index;
         playerLabel.color = player.color;
-        yield return new WaitForSeconds(.3f);
-
-        game.Resume();
-        taskManager.taskRunning = false;
     }
 
     public IEnumerator OnGetInPiece(object obj, GetInPieceEventArgs e) {
-        taskManager.taskRunning = true;
-        game.Pause();
-
-        // yield return new WaitForSeconds(1f);
-        // SetToPosition(player.piecesParent, blocksParent, e.piece.index, e.piece.position);
         PieceUI pieceUi = player.piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
         Transform[] transforms = new Transform[] {blocksParent.GetChild(e.piece.position)};
         yield return StartCoroutine(pieceUi.StepMove(transforms));
-
-
-        game.Resume();
-        taskManager.taskRunning = false;
     }
 
     public IEnumerator OnGetOutPiece(object obj, GetOutPieceEventArgs e) {
-        taskManager.taskRunning = true;
-        game.Pause();
-
         PieceUI pieceUi = playersData[e.piece.player.index].piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
         Transform[] transforms = new Transform[] {playersData[e.piece.player.index].outsParent.GetChild(e.piece.position)};
         yield return StartCoroutine(pieceUi.StepMove(transforms));
-
-        game.Resume();
-        taskManager.taskRunning = false;
     }
 
     public IEnumerator OnMovePiece(object obj, MovePieceEventArgs e) {
-        taskManager.taskRunning = true;
-        game.Pause();
-
         PieceUI pieceUi = player.piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
         Transform[] transforms = new Transform[e.steps.Length];
         Transform transform = blocksParent;
@@ -164,21 +135,6 @@ public class Visualizer : MonoBehaviour {
             transforms[i] = transform.GetChild(e.steps[i]);
         }
         yield return StartCoroutine(pieceUi.StepMove(transforms));
-
-        game.Resume();
-        taskManager.taskRunning = false;
-    }
-
-    public void SetToPosition(Transform fromParent, Transform toParent, int fromIndex, int toIndex) {
-        try{
-            Transform from = fromParent.GetChild(fromIndex);
-            Transform to = toParent.GetChild(toIndex);
-            from.position = to.position + Vector3.back;
-        } catch (Exception e) {
-            Debug.LogError(e.Message);
-            Debug.Log(fromIndex);
-            Debug.Log(toIndex);
-        }
     }
 
     public void OnDiceClick() {

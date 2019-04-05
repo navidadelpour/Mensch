@@ -1,13 +1,16 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class EventListenersManager : MonoBehaviour {
     Game game;
     TaskManager taskManager;
+    Visualizer visualizer;
 
     public void Awake() {
-        this.game = Visualizer.instance.game;
-        this.taskManager = Visualizer.instance.taskManager;
+        this.visualizer = Visualizer.instance;
+        this.game = visualizer.game;
+        this.taskManager = visualizer.taskManager;
         Subscribtion();
     }
 
@@ -21,32 +24,40 @@ public class EventListenersManager : MonoBehaviour {
 
     public void OnRolledDice(object obj, RollDiceEventArgs e) {
         taskManager.Add(() => {
-            StartCoroutine(Visualizer.instance.OnRolledDice(obj, e));
+            StartCoroutine(SafeRun(visualizer.OnRolledDice(obj, e)));
         });
     }
 
     public void OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
         taskManager.Add(() => {
-            StartCoroutine(Visualizer.instance.OnSetNextPlayer(obj, e));
+            StartCoroutine(SafeRun(visualizer.OnSetNextPlayer(obj, e)));
         });
     }
 
     public void OnGetInPiece(object obj, GetInPieceEventArgs e) {
         taskManager.Add(() => {
-            StartCoroutine(Visualizer.instance.OnGetInPiece(obj, e));
+            StartCoroutine(SafeRun(visualizer.OnGetInPiece(obj, e)));
         });
     }
 
     public void OnGetOutPiece(object obj, GetOutPieceEventArgs e) {
         taskManager.Add(() => {
-            StartCoroutine(Visualizer.instance.OnGetOutPiece(obj, e));
+            StartCoroutine(SafeRun(visualizer.OnGetOutPiece(obj, e)));
         });
     }
 
     public void OnMovePiece(object obj, MovePieceEventArgs e) {
         taskManager.Add(() => {
-            StartCoroutine(Visualizer.instance.OnMovePiece(obj, e));
+            StartCoroutine(SafeRun(visualizer.OnMovePiece(obj, e)));
         });
+    }
+
+    public IEnumerator SafeRun(IEnumerator runnable) {
+        taskManager.taskRunning = true;
+        game.Pause();
+        yield return StartCoroutine(runnable);
+        game.Resume();
+        taskManager.taskRunning = false;
     }
 
 }

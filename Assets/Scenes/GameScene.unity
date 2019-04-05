@@ -551,7 +551,7 @@ MonoBehaviour:
   playerLabel: {fileID: 1905692786}
   playersData:
   - color: {r: 1, g: 0, b: 0, a: 1}
-    type: 0
+    type: 2
     transform: {fileID: 0}
     dice: {fileID: 0}
     outsParent: {fileID: 0}
@@ -565,7 +565,7 @@ MonoBehaviour:
     goalsParent: {fileID: 0}
     piecesParent: {fileID: 0}
   - color: {r: 1, g: 0.8741453, b: 0, a: 1}
-    type: 0
+    type: 1
     transform: {fileID: 0}
     dice: {fileID: 0}
     outsParent: {fileID: 0}

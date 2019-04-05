@@ -74,7 +74,6 @@ public class Game {
 
     // called from main thread
     public void AttemptMovePieceFromUser(int playerIndex, int pieceIndex) {
-        UnityEngine.Debug.LogFormat("move, m: {0}, d: {1}", waitingForUserToMove, waitingForUserToDice);
         if(waitingForUserToMove) {
             playerSelectedPiece = players[playerIndex].pieces[pieceIndex];
             waitingForUserToMove = false;
@@ -83,7 +82,6 @@ public class Game {
 
     // called from main thread
     public void AttemptThrowDiceFromUser() {
-        UnityEngine.Debug.LogFormat("dice, m: {0}, d: {1}", waitingForUserToMove, waitingForUserToDice);
         if(waitingForUserToDice) {
             waitingForUserToDice = false;
         }
@@ -95,7 +93,7 @@ public class Game {
         KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
         Piece possibleHittedPiece = hitted.Key;
         BlockType blockType = hitted.Value;
-        UnityEngine.Debug.Log(blockType.ToString() + ": " + possibleHittedPiece); 
+        // UnityEngine.Debug.Log(blockType.ToString() + ": " + possibleHittedPiece); 
 
 
         if(shouldDice || !piece.Belongs(activePlayer) || !piece.CanMove(blockType)) {

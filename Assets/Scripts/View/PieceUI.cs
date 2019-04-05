@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PieceUI : MonoBehaviour
 {
-    private float speed = 5;
+    private float speed = 4;
     public float moveDelay = .2f;
 
     IEnumerator Move(Vector3 destination) {
