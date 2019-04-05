@@ -14,7 +14,7 @@ namespace Tests
             // mocking the game
             Board board = new Board(4, 40, 4);
             PlayerType[] playerTypes = new PlayerType[] {PlayerType.NOTHING, PlayerType.AI, PlayerType.NOTHING, PlayerType.NOTHING};
-            Game game = new Game(board, playerTypes, false);
+            Game game = new Game(board, playerTypes);
             Player player = game.players[0];
             Piece piece = player.pieces[0];
             piece.GetIn();
@@ -36,7 +36,7 @@ namespace Tests
             // mocking the game
             Board board = new Board(4, 40, 4);
             PlayerType[] playerTypes = new PlayerType[] {PlayerType.NOTHING, PlayerType.AI, PlayerType.NOTHING, PlayerType.NOTHING};
-            Game game = new Game(board, playerTypes, false);
+            Game game = new Game(board, playerTypes);
             Player player = game.players[0];
             Piece piece = player.pieces[0];
             piece.GetIn();

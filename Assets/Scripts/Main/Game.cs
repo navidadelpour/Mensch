@@ -15,7 +15,6 @@ public class Game {
     public bool paused;
     public bool waitingForUserToDice = true;
     public bool waitingForUserToMove = true;
-    private bool turnBased;
     private bool shouldDice = true;
 
     public Board board;
@@ -32,21 +31,18 @@ public class Game {
     public event EventHandler<GetOutPieceEventArgs> GetOutPieceEvent;
     public event EventHandler<MovePieceEventArgs> MovePieceEvent;
 
-    public Game(Board board, PlayerType[] playerTypes, bool turnBased) {
+    public Game(Board board, PlayerType[] playerTypes) {
         this.board = board;
-        this.turnBased = turnBased;
         delayTime = 500;
 
         InitPlayers(playerTypes);
     }
 
     private void InitPlayers(PlayerType[] playerTypes) {
-        List<Player> playersList = new List<Player>();
+        players = new Player[4];
         for(int i = 0; i < playerTypes.Length; i++) {
-            if(playerTypes[i] != PlayerType.NOTHING)
-                playersList.Add(PlayerFactory.Create(playerTypes[i], this, i));
+            players[i] = PlayerFactory.Create(playerTypes[i], this, i);
         }
-        players = playersList.ToArray();
     }
 
     public Thread Start() {
@@ -75,7 +71,10 @@ public class Game {
     // called from main thread
     public void AttemptMovePieceFromUser(int playerIndex, int pieceIndex) {
         if(waitingForUserToMove) {
-            playerSelectedPiece = players[playerIndex].pieces[pieceIndex];
+            Player player = players[playerIndex];
+            if(player == null)
+                return;
+            playerSelectedPiece = player.pieces[pieceIndex];
             waitingForUserToMove = false;
         }
     }
@@ -165,8 +164,11 @@ public class Game {
 
 
     private void SetNextPlayer() {
-        activePlayer = players[(Array.IndexOf(players, activePlayer) + 1) % players.Length];
-    }
+        int currentPlayerIndex = Array.IndexOf(players, activePlayer);
+        do {
+            activePlayer = players[(++currentPlayerIndex) % players.Length];
+        } while(activePlayer == null);
+    } 
 
     private bool HasWinner() {
         bool win = true;

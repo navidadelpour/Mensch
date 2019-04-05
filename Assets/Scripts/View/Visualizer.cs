@@ -9,7 +9,6 @@ public class Visualizer : MonoBehaviour {
 
     public static Visualizer instance;
 
-    public bool turnBased;
     public bool log;
     public bool ui;
     [HideInInspector] public Transform blocksParent;
@@ -60,10 +59,8 @@ public class Visualizer : MonoBehaviour {
 
 
         if(taskManager.HasTask()) {
-            // game.Pause();
             Debug.Log("tasks: " + taskManager.TasksCount());
             taskManager.Do();
-            // game.Resume();
         }
     }
 
@@ -87,7 +84,7 @@ public class Visualizer : MonoBehaviour {
             playerTypes[i] = playersData[i].type;
 
         board = new Board(4, 40, 4);
-        game = new Game(board, playerTypes, turnBased);
+        game = new Game(board, playerTypes);
         players = game.players;
         player = playersData[0];
 
