@@ -23,7 +23,6 @@ public class Visualizer : MonoBehaviour {
     Board board;
     public Game game;
     public Thread gameThread;
-    public Thread mainThread;
     public TaskManager taskManager;
 
     void Awake() {
@@ -41,9 +40,6 @@ public class Visualizer : MonoBehaviour {
         if(ui)
             new GameGUIMaker(this);
 
-        mainThread = Thread.CurrentThread;
-        // mainThread.Name = "MainThread";
-        
         SetupGameLogic();
         taskManager = new TaskManager();
         gameObject.AddComponent(typeof(EventListenersManager));

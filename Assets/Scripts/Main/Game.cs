@@ -50,6 +50,7 @@ public class Game {
         thread.Name = "GameThread";
         externalDelay = new ManualResetEvent(true);
         internalDelay = new ManualResetEvent(false);
+        internalDelay.WaitOne(delayTime);
         thread.Start();
         return thread;
     }

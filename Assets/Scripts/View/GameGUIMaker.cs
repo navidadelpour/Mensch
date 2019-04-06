@@ -53,7 +53,7 @@ public class GameGUIMaker {
     }
 
     private Color BrightnessFilter(Color c) {
-        float ratio = .5f;
+        float ratio = .6f;
         return new Color(c.r + ratio, c.g + ratio, c.b + ratio, c.a);
     }
 

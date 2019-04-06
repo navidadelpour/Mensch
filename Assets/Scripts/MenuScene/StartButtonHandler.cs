@@ -4,10 +4,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StartButtonHandler : MonoBehaviour {
+
     public PlayerHandler[] playerHandlers;
     public string sceneToLoadName;
 
-    void Start() {
+    public GameObject gamePanel;
+    public GameObject menuPanel;
+
+    void Awake() {
+        gamePanel.SetActive(false);
     }
 
     public void OnStartButtonClick() {
@@ -29,7 +34,13 @@ public class StartButtonHandler : MonoBehaviour {
         DataForGameScene.playersData = playersData;
         DataForGameScene.isValid = true;
 
-        SceneManager.LoadScene(sceneToLoadName);
+        ChangeToGameView();
+    }
+
+    private void ChangeToGameView() {
+        Visualizer.instance.enabled = true;
+        menuPanel.SetActive(false);
+        gamePanel.SetActive(true);
     }
 
 }
