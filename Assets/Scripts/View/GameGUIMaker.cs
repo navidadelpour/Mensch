@@ -52,27 +52,35 @@ public class GameGUIMaker {
         }
     }
 
+    private Color BrightnessFilter(Color c) {
+        float ratio = .5f;
+        return new Color(c.r + ratio, c.g + ratio, c.b + ratio, c.a);
+    }
+
     private void SetupPlayer(int i) {
         player = new GameObject("player " + i);
         player.transform.parent = playersParent;
-        if(i < visualizer.playersData.Length)
-            visualizer.playersData[i].transform = player.transform;
+        visualizer.playersData[i].transform = player.transform;
+
+        int startPosition = i * 10;
+        visualizer.blocksParent.GetChild(startPosition).GetComponent<SpriteRenderer>().color = BrightnessFilter(visualizer.playersData[i].color);
     }
 
     private void SetupDicePosition(int i) {
-        Vector2 position = (directions[i] + directions[(i + 1) % 4]) * 3;
-        GameObject dice = new GameObject("Dice Position");
-        dice.transform.position = position;
-        dice.transform.parent = player.transform;
-        if(i < visualizer.playersData.Length)
+        if(visualizer.playersData[i].type != PlayerType.NOTHING) {
+            Vector2 position = (directions[i] + directions[(i + 1) % 4]) * 3;
+            GameObject dice = new GameObject("Dice Position");
+            dice.transform.position = position;
+            dice.transform.parent = player.transform;
             visualizer.playersData[i].dice = dice.transform;
+        }
     }
 
     private void SetupGoalBlocks(int i) {
         Transform goalsParent = (new GameObject("Goals")).transform;
         goalsParent.parent = player.transform;
-        if(i < visualizer.playersData.Length)
-            visualizer.playersData[i].goalsParent = goalsParent;
+        visualizer.playersData[i].goalsParent = goalsParent;
+
         Vector2 position = directions[i] * 5;
         for(int j = 0; j < 4; j++) {
             position -= directions[i];
@@ -89,17 +97,22 @@ public class GameGUIMaker {
         if(i < visualizer.playersData.Length)
             visualizer.playersData[i].outsParent = outsParent;
 
-        Transform piecesParent = (new GameObject("Pieces")).transform;
-        piecesParent.parent = player.transform;
-        if(i < visualizer.playersData.Length)
-            visualizer.playersData[i].piecesParent = piecesParent;
+        Transform piecesParent = null;
+        if(visualizer.playersData[i].type != PlayerType.NOTHING) {
+            piecesParent = (new GameObject("Pieces")).transform;
+            piecesParent.parent = player.transform;
+            if(i < visualizer.playersData.Length)
+                visualizer.playersData[i].piecesParent = piecesParent;
+        }
 
         Vector2 position = (directions[i] + directions[(i + 1) % 4]) * 4;
         for(int j = 0; j < 4; j++) {
             position += directions[(i + j) % 4];
             GameObject block = MonoBehaviour.Instantiate(visualizer.blockPrefab, position, Quaternion.identity, outsParent);
             block.name = "out block " + j;
-            if(i < visualizer.playersData.Length) {
+            block.GetComponent<SpriteRenderer>().color = BrightnessFilter(visualizer.playersData[i].color);
+
+            if(visualizer.playersData[i].type != PlayerType.NOTHING) {
                 GameObject piece = MonoBehaviour.Instantiate(visualizer.piecePrefab, position, Quaternion.identity, piecesParent);
                 piece.name = "piece " + j;
                 piece.GetComponent<SpriteRenderer>().color = visualizer.playersData[i].color;

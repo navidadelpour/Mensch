@@ -87,7 +87,6 @@ public class Visualizer : MonoBehaviour {
         game = new Game(board, playerTypes);
         players = game.players;
         player = playersData[0];
-
     }
 
     public IEnumerator OnRolledDice(object obj, RollDiceEventArgs e) {
