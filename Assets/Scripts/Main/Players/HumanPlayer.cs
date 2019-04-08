@@ -21,9 +21,8 @@ public class HumanPlayer : Player {
     private void wait(ref bool condition) {
         condition = true;
         while(condition) {
-            game.internalDelay.WaitOne(200);
+            game.InternalWait();
         }
-        condition = false;
     }
 
 }

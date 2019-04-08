@@ -50,7 +50,7 @@ public class Game {
         thread.Name = "GameThread";
         externalDelay = new ManualResetEvent(true);
         internalDelay = new ManualResetEvent(false);
-        internalDelay.WaitOne(delayTime);
+        InternalWait();
         thread.Start();
         return thread;
     }
@@ -69,12 +69,14 @@ public class Game {
         end = true;
     }
 
+    public void InternalWait() {
+        internalDelay.WaitOne(delayTime);
+    }
+
     // called from main thread
     public void AttemptMovePieceFromUser(int playerIndex, int pieceIndex) {
         if(waitingForUserToMove) {
             Player player = players[playerIndex];
-            if(player == null)
-                return;
             playerSelectedPiece = player.pieces[pieceIndex];
             waitingForUserToMove = false;
         }
@@ -106,18 +108,18 @@ public class Game {
         if(piece.isIn) {
             KeyValuePair<int[], int> stepsData = piece.Go(blockType, diceNumber);
             MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber, stepsData.Key, stepsData.Value));
-            internalDelay.WaitOne(delayTime);
+            InternalWait();
         } else if(diceNumber == 6){
             piece.GetIn();
             GetInPieceEvent(this, new GetInPieceEventArgs(piece));
-            internalDelay.WaitOne(delayTime);
+            InternalWait();
         }
 
         // hit enemy
         if(blockType == BlockType.ENEMY) {
             possibleHittedPiece.GetOut();
             GetOutPieceEvent(this, new GetOutPieceEventArgs(possibleHittedPiece));
-            internalDelay.WaitOne(delayTime);
+            InternalWait();
         }
 
         shouldDice = true;
@@ -135,8 +137,9 @@ public class Game {
         shouldDice = false;
 
         ThrowDice();
+
         RolledDiceEvent(this, new RollDiceEventArgs(diceNumber, activePlayer));
-        internalDelay.WaitOne(delayTime);
+        InternalWait();
 
         if(activePlayer.CanMove(diceNumber))
             activePlayer.DoMove(diceNumber);
@@ -152,7 +155,7 @@ public class Game {
         if(diceNumber != 6){
             SetNextPlayer();
             SetNextTurnEvent(this, new SetNextTurnEventArgs(activePlayer));
-            internalDelay.WaitOne(delayTime);
+            InternalWait();
         }
 
         shouldDice = true;
@@ -165,9 +168,10 @@ public class Game {
 
 
     private void SetNextPlayer() {
-        int currentPlayerIndex = Array.IndexOf(players, activePlayer);
+        int currentPlayerIndex = activePlayer == null ? -1 : Array.IndexOf(players, activePlayer);
         do {
             activePlayer = players[(++currentPlayerIndex) % players.Length];
+            UnityEngine.Debug.Log(activePlayer);
         } while(activePlayer == null);
     } 
 
