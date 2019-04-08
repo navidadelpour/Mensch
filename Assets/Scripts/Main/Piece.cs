@@ -97,23 +97,28 @@ public class Piece : IComparable<Piece> {
         return (position + diceNumber) % board.roadSize;
     }
 
+    private int calculatePacesGone(int diceNumber) {
+        return pacesGone + diceNumber;
+    }
+
     public KeyValuePair<int[], int> Go(BlockType blockType, int diceNumber) {
         Func<int, int> calculateMovement = CalculateInRoadMovement;
         int[] steps = new int[diceNumber];
         int inGoalIndex = -1;
+        int nextPacesGone = pacesGone;
         inGoal = inGoal || blockType == BlockType.INGOAL;
 
         for(int i = 0; i < diceNumber; i++) { 
-            steps[i] = calculateMovement(i + 1);
-            if(inGoalIndex == -1 && inGoal && (pacesGone >= board.roadSize || steps[i] >= player.startPosition)) {
+            nextPacesGone = calculatePacesGone(i + 1);
+            if(inGoalIndex == -1 && inGoal && nextPacesGone >= board.roadSize) {
                 inGoalIndex = i;
                 calculateMovement = CalculateInGoalMovement;
-                steps[i] = CalculateInGoalMovement(i + 1);
             }
+            steps[i] = calculateMovement(i + 1);
         }
 
         position = calculateMovement(diceNumber);
-        pacesGone += diceNumber;
+        pacesGone = calculatePacesGone(diceNumber);
 
         return new KeyValuePair<int[], int>(steps, inGoalIndex);
     }
@@ -130,7 +135,7 @@ public class Piece : IComparable<Piece> {
         player.inPieces --;
         isIn = false;
         position = index;
-        pacesGone = 0;
+        pacesGone = calculatePacesGone(-pacesGone);
     }
 
     public bool CanMove(BlockType blockType) {
