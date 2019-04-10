@@ -20,6 +20,7 @@ public class EventListenersManager : MonoBehaviour {
         game.GetInPieceEvent += new EventHandler<GetInPieceEventArgs>(OnGetInPiece);
         game.GetOutPieceEvent += new EventHandler<GetOutPieceEventArgs>(OnGetOutPiece);
         game.MovePieceEvent += new EventHandler<MovePieceEventArgs>(OnMovePiece);
+        game.WinEvent += new EventHandler<WinEventArgs>(OnWin);
     }
 
     public void OnRolledDice(object obj, RollDiceEventArgs e) {
@@ -49,6 +50,12 @@ public class EventListenersManager : MonoBehaviour {
     public void OnMovePiece(object obj, MovePieceEventArgs e) {
         taskManager.Add(() => {
             StartCoroutine(SafeRun(visualizer.OnMovePiece(obj, e)));
+        });
+    }
+
+    public void OnWin(object obj, WinEventArgs e) {
+        taskManager.Add(() => {
+            StartCoroutine(SafeRun(visualizer.OnWin(obj, e)));
         });
     }
 

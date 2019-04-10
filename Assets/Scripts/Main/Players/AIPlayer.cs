@@ -18,10 +18,8 @@ public class AIPlayer : Player {
 
     private Piece GetBestPieceByHeuristic(int diceNumber) {
         string cause = "";
-        for (int i = 0; i < pieces.Length; i++){
+        for (int i = 0; i < pieces.Length; i++)
             pieces[i].heuristic = Heuristic(pieces[i], diceNumber, ref cause);
-            // UnityEngine.Debug.Log(pieces[i] + " H: " + pieces[i].heuristic + " cause: " + cause);
-        }
         
         Array.Sort(pieces);
         return pieces[0];

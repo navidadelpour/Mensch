@@ -30,6 +30,7 @@ public class Game {
     public event EventHandler<GetInPieceEventArgs> GetInPieceEvent;
     public event EventHandler<GetOutPieceEventArgs> GetOutPieceEvent;
     public event EventHandler<MovePieceEventArgs> MovePieceEvent;
+    public event EventHandler<WinEventArgs> WinEvent;
 
     public Game(Board board, PlayerType[] playerTypes) {
         this.board = board;
@@ -95,7 +96,6 @@ public class Game {
         KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
         Piece possibleHittedPiece = hitted.Key;
         BlockType blockType = hitted.Value;
-        // UnityEngine.Debug.Log(blockType.ToString() + ": " + possibleHittedPiece); 
 
 
         if(shouldDice || !piece.Belongs(activePlayer) || !piece.CanMove(blockType)) {
@@ -126,7 +126,7 @@ public class Game {
         if(!HasWinner()) {
             NextTurn();
         } else {
-            UnityEngine.Debug.Log(activePlayer.index + " win");
+            WinEvent(this, new WinEventArgs(activePlayer));
         }
     }
 
@@ -171,7 +171,6 @@ public class Game {
         int currentPlayerIndex = activePlayer == null ? -1 : Array.IndexOf(players, activePlayer);
         do {
             activePlayer = players[(++currentPlayerIndex) % players.Length];
-            UnityEngine.Debug.Log(activePlayer);
         } while(activePlayer == null);
     } 
 

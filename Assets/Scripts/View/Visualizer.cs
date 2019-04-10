@@ -129,6 +129,10 @@ public class Visualizer : MonoBehaviour {
         yield return StartCoroutine(pieceUi.StepMove(transforms));
     }
 
+    public IEnumerator OnWin(object obj, WinEventArgs e) {
+        yield return null;
+    }
+
     public void OnDiceClick() {
         game.AttemptThrowDiceFromUser();
     }

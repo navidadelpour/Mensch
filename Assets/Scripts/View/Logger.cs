@@ -16,6 +16,7 @@ public class Logger : MonoBehaviour {
         game.GetInPieceEvent += new EventHandler<GetInPieceEventArgs>(OnGetInPiece);
         game.GetOutPieceEvent += new EventHandler<GetOutPieceEventArgs>(OnGetOutPiece);
         game.MovePieceEvent += new EventHandler<MovePieceEventArgs>(OnMovePiece);
+        game.WinEvent += new EventHandler<WinEventArgs>(OnWin);
     }
 
 
@@ -48,6 +49,12 @@ public class Logger : MonoBehaviour {
         Debug.LogFormat("MOVE: piece {0} position {1}",
             e.piece.index, e.piece.position);
         // Debug.Log(System.Threading.Thread.CurrentThread.Name);
+    }
+
+    public void OnWin(object obj, WinEventArgs e) {
+        Debug.LogFormat("WIN: player {0}",
+            e.player.index);
+
     }
 
 }
