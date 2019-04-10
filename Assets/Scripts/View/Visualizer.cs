@@ -9,13 +9,10 @@ public class Visualizer : MonoBehaviour {
 
     public static Visualizer instance;
 
-    public bool log;
-    public bool ui;
     [HideInInspector] public Transform blocksParent;
     public GameObject blockPrefab;
     public GameObject piecePrefab;
     public Text diceLabel;
-    public Text playerLabel;
 
     public PlayerData[] playersData;
     private PlayerData player;
@@ -25,44 +22,27 @@ public class Visualizer : MonoBehaviour {
     public Thread gameThread;
     public TaskManager taskManager;
 
+    private bool started;
+    private PlayerIconsHandler playerIconsHandler;
+
     void Awake() {
         if(instance == null) {
             instance = this;
         }
-    }
-
-    void Start() {
-        if(DataForGameScene.isValid)
-            playersData = DataForGameScene.playersData;
-        if(log)
-            gameObject.AddComponent(typeof(Logger));
-
-        if(ui)
-            new GameGUIMaker(this);
-
-        SetupGameLogic();
-        taskManager = new TaskManager();
-        gameObject.AddComponent(typeof(EventListenersManager));
-        gameThread = game.Start();
+        playersData = new PlayerData[4];
+        diceLabel.gameObject.SetActive(false);
     }
 
     void Update() {
-        if(Input.GetKeyDown(KeyCode.Space))
-            if(!game.paused)
-                game.Pause();
-            else
-                game.Resume();
-
-
-        if(taskManager.HasTask()) {
+        if(started && taskManager.HasTask()) {
             Debug.Log("tasks: " + taskManager.TasksCount());
             taskManager.Do();
         }
     }
 
     private void OnApplicationQuit() {
-        Debug.Log("Quiting with " + taskManager.TasksCount() + " task");
-        game.End();
+        if(game != null)
+            game.End();
     }
 
     void OnApplicationPause(bool pauseStatus) {
@@ -74,7 +54,8 @@ public class Visualizer : MonoBehaviour {
             game.Resume();
     }
 
-    public void SetupGameLogic() {
+
+    public void Setup() {
         PlayerType[] playerTypes = new PlayerType[playersData.Length];
         for(int i = 0; i < playersData.Length; i++)
             playerTypes[i] = playersData[i].type;
@@ -83,6 +64,15 @@ public class Visualizer : MonoBehaviour {
         game = new Game(board, playerTypes);
         players = game.players;
         player = playersData[0];
+
+        new GameGUIMaker(this);
+        taskManager = new TaskManager();
+        gameObject.AddComponent(typeof(EventListenersManager));
+        playerIconsHandler = GetComponent<PlayerIconsHandler>();
+
+        gameThread = game.Start();
+        diceLabel.gameObject.SetActive(true);
+        started = true;
     }
 
     public IEnumerator OnRolledDice(object obj, RollDiceEventArgs e) {
@@ -98,11 +88,9 @@ public class Visualizer : MonoBehaviour {
 
     public IEnumerator OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
         diceLabel.text = "O";
-        playerLabel.text = "setting...";
         yield return new WaitForSeconds(.5f);
         player = playersData[e.player.index];
-        playerLabel.text = "Player " + e.player.index;
-        playerLabel.color = player.color;
+        playerIconsHandler.NextPlayer(e.player.index);
     }
 
     public IEnumerator OnGetInPiece(object obj, GetInPieceEventArgs e) {
@@ -131,10 +119,6 @@ public class Visualizer : MonoBehaviour {
 
     public IEnumerator OnWin(object obj, WinEventArgs e) {
         yield return null;
-    }
-
-    public void OnDiceClick() {
-        game.AttemptThrowDiceFromUser();
     }
 
 }
