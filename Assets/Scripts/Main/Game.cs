@@ -34,7 +34,7 @@ public class Game {
 
     public Game(Board board, PlayerType[] playerTypes) {
         this.board = board;
-        delayTime = 500;
+        delayTime = 200;
 
         InitPlayers(playerTypes);
     }

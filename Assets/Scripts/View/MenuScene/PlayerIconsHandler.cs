@@ -6,8 +6,7 @@ using UnityEngine.UI;
 public class PlayerIconsHandler : MonoBehaviour {
 
     public PlayerIcon[] playerIcons;
-    public int currentPlayerIndex;
-
+    private int currentPlayerIndex;
 
     public void NextPlayer(int index) {
         playerIcons[currentPlayerIndex].SetActive(false);

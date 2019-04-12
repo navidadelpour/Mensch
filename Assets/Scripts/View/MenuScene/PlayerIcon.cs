@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class PlayerIcon : MonoBehaviour {
 
     public PlayerType type;
-    public Color color;
+    [HideInInspector] public Color color;
     private PlayerType[] types;
     private int currentIndex;
     private Image image;
@@ -15,9 +15,9 @@ public class PlayerIcon : MonoBehaviour {
     public Sprite humanImage;
     public Sprite botImage;
 
-    void Start() {
+    void Awake() {
         image = GetComponent<Image>();
-        image.color = color;
+        color = image.color;
         icon = transform.GetChild(0).GetComponent<Image>();
         types = new PlayerType[] {PlayerType.HUMAN, PlayerType.AI, PlayerType.NOTHING};
         currentIndex = Array.IndexOf(types, type);
@@ -33,12 +33,15 @@ public class PlayerIcon : MonoBehaviour {
         switch (type) {
             case PlayerType.NOTHING:
                 icon.sprite = null;
+                icon.color = Color.clear;
                 break;
             case PlayerType.HUMAN:
                 icon.sprite = humanImage;
+                icon.color = Color.white;
                 break;
             case PlayerType.AI:
                 icon.sprite = botImage;
+                icon.color = Color.white;
                 break;
         }
     }
@@ -48,7 +51,9 @@ public class PlayerIcon : MonoBehaviour {
     }
 
     public void SetActive(bool b) {
-        image.color = new Color(color.r, color.g, color.b, b ? 1 : .5f);
+        float alpha = b ? 1 : .5f;
+        image.color = new Color(color.r, color.g, color.b, alpha);
+        icon.color = new Color(icon.color.r, icon.color.g, icon.color.b, icon.color.a == 0 ? 0 : alpha);
     }
 
 }
