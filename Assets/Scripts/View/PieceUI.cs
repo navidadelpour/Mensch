@@ -10,6 +10,7 @@ public class PieceUI : MonoBehaviour {
 
     IEnumerator Move(Vector3 destination, float multiplier) {
         destination += zIndex;
+        SFX.instance.PlayPieceSound();
         while(transform.position != destination) {
             transform.position = Vector3.MoveTowards(transform.position, destination, Time.deltaTime * speed * multiplier);
             yield return new WaitForFixedUpdate();

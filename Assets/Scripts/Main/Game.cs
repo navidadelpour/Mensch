@@ -81,11 +81,9 @@ public class Game {
     // called from main thread
     public void AttemptMovePieceFromUser(int playerIndex, int pieceIndex) {
         Player player = players[playerIndex];
+        playerSelectedPiece = player.pieces[pieceIndex];
         if(waitingForUserToMove) {
-            playerSelectedPiece = player.pieces[pieceIndex];
             waitingForUserToMove = false;
-        } else if (player == activePlayer) {
-            ShouldDiceEvent(this, null);
         }
     }
 

@@ -21,6 +21,7 @@ public class AudioManager : MonoBehaviour {
 
     public void OnMusicButtonClick() {
         music.mute = !music.mute;
+        SFX.instance.Mute(music.mute);
         PlayerPrefs.SetInt("music", music.mute ? 1 : 0);
         icon.sprite = music.mute ? offSprite : onSprite;
     }

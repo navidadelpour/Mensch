@@ -29,6 +29,7 @@ public class Dice : MonoBehaviour {
         condition = true;
         StartCoroutine(Change());
         StartCoroutine(Rotate());
+        SFX.instance.PlayDiceSound();
         yield return new WaitForSeconds(time);
         image.sprite = sprites[diceNumber - 1];
         condition = false;
@@ -43,13 +44,13 @@ public class Dice : MonoBehaviour {
     }
 
     public IEnumerator Rotate() {
+        float _rotationSpeed = Random.Range(rotationSpeed * .8f, rotationSpeed * 1.2f);
+        float _moveSpeed = Random.Range(moveSpeed * .8f, moveSpeed * 1.2f);
         while(condition) {
-            transform.RotateAround(transform.position, Vector3.forward, Time.deltaTime * rotationSpeed);
-            transform.RotateAround(rotationPoint.position, Vector3.forward, Time.deltaTime * moveSpeed);
+            transform.RotateAround(transform.position, Vector3.forward, Time.deltaTime * _rotationSpeed);
+            transform.RotateAround(rotationPoint.position, Vector3.forward, Time.deltaTime * _moveSpeed);
             yield return null;
         }
     }
-
-
 
 }
