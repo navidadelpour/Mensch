@@ -24,13 +24,16 @@ public class GameStarter : MonoBehaviour {
         visualizer.playersData = new PlayerData[4];
         SetPlayersData();
         gameGUIMaker = new GameGUIMaker(visualizer);
+        // please choose your players
+        visualizer.dialogBox.Popup(".ﻦﮐ ﺏﺎﺨﺘﻧﺍ ﻭﺭ ﻥﺎﻨﮑﯾﺯﺎﺑ");
 
     }
 
     public void OnStartButtonClick() {
         bool hasError = SetPlayersData();
         if(hasError) {
-            Debug.Log("at least one human or AI is required");
+            // at least one human needed.
+            visualizer.dialogBox.Popup(".ﻪﺷﺎﺑ ﯼﺯﺎﺑ ﻮﺗ ﺪﯾﺎﺑ ﻥﺎﺴﻧﺍ ﮏﯾ ﻞﻗﺍﺪﺣ");
             return;
         }
 
@@ -65,7 +68,7 @@ public class GameStarter : MonoBehaviour {
                 playerData.type = playerIcons[i].type;
             }
             visualizer.playersData[i] = playerData;
-            if(visualizer.playersData[i].type == PlayerType.HUMAN || visualizer.playersData[i].type == PlayerType.AI) {
+            if(visualizer.playersData[i].type == PlayerType.HUMAN) {
                 hasError = false;
             }
         }

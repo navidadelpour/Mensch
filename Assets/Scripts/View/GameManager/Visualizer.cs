@@ -13,6 +13,8 @@ public class Visualizer : MonoBehaviour {
     public GameObject blockPrefab;
     public GameObject piecePrefab;
     public Dice dice;
+    public DialogBox dialogBox;
+    public WinPanel winPanel;
 
     public PlayerData[] playersData;
     private PlayerData player;
@@ -81,7 +83,7 @@ public class Visualizer : MonoBehaviour {
         yield return new WaitForSeconds(.5f);
         player = playersData[e.player.index];
         playerIconsHandler.NextPlayer(e.player.index);
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(.5f);        
     }
 
     public IEnumerator OnGetInPiece(object obj, GetInPieceEventArgs e) {
@@ -113,7 +115,33 @@ public class Visualizer : MonoBehaviour {
         return transforms;
     }
 
+    public IEnumerator OnCantMoveEvent(object obj, EventArgs e) {
+        // this piece cant move
+        dialogBox.Popup("!ﻪﻨﮐ ﺖﮐﺮﺣ ﻪﻧﻮﺗ ﯽﻤﻧ ﻩﺮﻬﻣ ﻦﯾﺍ");
+        yield return null;
+    }
+
+    public IEnumerator OnOutTurnEvent(object obj, EventArgs e) {
+        // it's not your turn
+        dialogBox.Popup("!ﺲﯿﻧ ﺖﺘﺑﻮﻧ");
+        yield return null;
+    }
+
+    public IEnumerator OnShouldDiceEvent(object obj, EventArgs e) {
+        // you should throw dice
+        dialogBox.Popup("!ﯼﺯﺍﺪﻨﺑ ﺱﺎﺗ ﺪﯾﺎﺑ");
+        yield return null;
+    }
+
+    public IEnumerator OnShouldMoveEvent(object obj, EventArgs e) {
+        // you should move your piece
+        dialogBox.Popup("!ﻩﺪﺑ ﻥﻮﮑﺗ ﻭﺭ ﺕﺍ ﻩﺮﻬﻣ");
+        yield return null;
+    }
+
+
     public IEnumerator OnWin(object obj, WinEventArgs e) {
+        winPanel.Popup(playerIconsHandler.playerIcons[e.player.index].gameObject);
         yield return null;
     }
 

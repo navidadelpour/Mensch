@@ -31,6 +31,10 @@ public class Game {
     public event EventHandler<GetOutPieceEventArgs> GetOutPieceEvent;
     public event EventHandler<MovePieceEventArgs> MovePieceEvent;
     public event EventHandler<WinEventArgs> WinEvent;
+    public event EventHandler ShouldDiceEvent;
+    public event EventHandler OutTurnEvent;
+    public event EventHandler CantMoveEvent;
+    public event EventHandler ShouldMoveEvent;
 
     public Game(Board board, PlayerType[] playerTypes) {
         this.board = board;
@@ -76,10 +80,12 @@ public class Game {
 
     // called from main thread
     public void AttemptMovePieceFromUser(int playerIndex, int pieceIndex) {
+        Player player = players[playerIndex];
         if(waitingForUserToMove) {
-            Player player = players[playerIndex];
             playerSelectedPiece = player.pieces[pieceIndex];
             waitingForUserToMove = false;
+        } else if (player == activePlayer) {
+            ShouldDiceEvent(this, null);
         }
     }
 
@@ -97,8 +103,12 @@ public class Game {
         Piece possibleHittedPiece = hitted.Key;
         BlockType blockType = hitted.Value;
 
-
         if(shouldDice || !piece.Belongs(activePlayer) || !piece.CanMove(blockType)) {
+            if (!piece.Belongs(activePlayer))
+                OutTurnEvent(this, null);
+            else if(!piece.CanMove(blockType))
+                CantMoveEvent(this, null);
+
             waitingForUserToMove = true;
             activePlayer.DoMove(diceNumber);
             return;

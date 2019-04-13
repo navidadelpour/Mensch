@@ -21,6 +21,10 @@ public class EventListenersManager : MonoBehaviour {
         game.GetOutPieceEvent += new EventHandler<GetOutPieceEventArgs>(OnGetOutPiece);
         game.MovePieceEvent += new EventHandler<MovePieceEventArgs>(OnMovePiece);
         game.WinEvent += new EventHandler<WinEventArgs>(OnWin);
+        game.ShouldDiceEvent += new EventHandler(OnShouldDiceEvent);
+        game.OutTurnEvent += new EventHandler(OnOutTurnEvent);
+        game.CantMoveEvent += new EventHandler(OnCantMoveEvent);
+        game.ShouldMoveEvent += new EventHandler(OnShouldMoveEvent);
     }
 
     public void OnRolledDice(object obj, RollDiceEventArgs e) {
@@ -56,6 +60,30 @@ public class EventListenersManager : MonoBehaviour {
     public void OnWin(object obj, WinEventArgs e) {
         taskManager.Add(() => {
             StartCoroutine(SafeRun(visualizer.OnWin(obj, e)));
+        });
+    }
+
+    public void OnShouldDiceEvent(object obj, EventArgs e) {
+        taskManager.Add(() => {
+            StartCoroutine(SafeRun(visualizer.OnShouldDiceEvent(obj, e)));
+        });
+    }
+
+    public void OnOutTurnEvent(object obj, EventArgs e) {
+        taskManager.Add(() => {
+            StartCoroutine(SafeRun(visualizer.OnOutTurnEvent(obj, e)));
+        });
+    }
+
+    public void OnCantMoveEvent(object obj, EventArgs e) {
+        taskManager.Add(() => {
+            StartCoroutine(SafeRun(visualizer.OnCantMoveEvent(obj, e)));
+        });
+    }
+
+    public void OnShouldMoveEvent(object obj, EventArgs e) {
+        taskManager.Add(() => {
+            StartCoroutine(SafeRun(visualizer.OnShouldMoveEvent(obj, e)));
         });
     }
 
