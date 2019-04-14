@@ -2471,6 +2471,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dice: {fileID: 8300000, guid: 3188f42c2f07b164ca0628ecb6a37121, type: 3}
   piece: {fileID: 8300000, guid: 69c641d5b23d95a4daf96bd6f2068218, type: 3}
+  pieceHit: {fileID: 8300000, guid: b86ec6e92657335499516d46e2655cb1, type: 3}
 --- !u!1 &1171624534
 GameObject:
   m_ObjectHideFlags: 0

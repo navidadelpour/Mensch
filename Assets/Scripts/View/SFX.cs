@@ -10,6 +10,7 @@ public class SFX : MonoBehaviour {
 
     public AudioClip dice;
     public AudioClip piece;
+    public AudioClip pieceHit;
 
     void Awake() {
         if(instance == null) {
@@ -24,6 +25,10 @@ public class SFX : MonoBehaviour {
 
     public void PlayPieceSound() {
         Play(piece);
+    }
+
+    public void PlayPieceHitSound() {
+        Play(pieceHit);
     }
 
     public void Mute(bool b) {

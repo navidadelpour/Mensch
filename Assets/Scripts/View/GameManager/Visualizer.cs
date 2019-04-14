@@ -95,6 +95,7 @@ public class Visualizer : MonoBehaviour {
     public IEnumerator OnGetOutPiece(object obj, GetOutPieceEventArgs e) {
         PieceUI pieceUi = playersData[e.piece.player.index].piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
         Transform[] transforms = new Transform[] {playersData[e.piece.player.index].outsParent.GetChild(e.piece.position)};
+        SFX.instance.PlayPieceHitSound();
         yield return StartCoroutine(pieceUi.StepMove(transforms, 2));
     }
 
