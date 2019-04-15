@@ -68,7 +68,7 @@ public class GameStarter : MonoBehaviour {
                 playerData.type = playerIcons[i].type;
             }
             visualizer.playersData[i] = playerData;
-            if(visualizer.playersData[i].type == PlayerType.HUMAN) {
+            if(visualizer.playersData[i].type == PlayerType.HUMAN || visualizer.playersData[i].type == PlayerType.AI) {
                 hasError = false;
             }
         }

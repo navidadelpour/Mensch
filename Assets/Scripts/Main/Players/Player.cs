@@ -26,13 +26,13 @@ public abstract class Player {
         }
     }
 
-    public abstract void DoDice();
-    public abstract void DoMove(int diceNumber);
+    public abstract bool Dice();
+    public abstract Piece Choose(int diceNumber);
 
     public bool CanMove(int diceNumber) {
         for(int i = 0; i < pieces.Length; i++) {
-            KeyValuePair<Piece, BlockType> hitted = pieces[i].GetBlock(diceNumber);
-            if(pieces[i].CanMove(hitted.Value)) {
+            Block hitted = pieces[i].GetBlock(diceNumber);
+            if(pieces[i].CanMove(hitted.type)) {
                 return true;
             }
         }

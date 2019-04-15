@@ -8,12 +8,12 @@ public class AIPlayer : Player {
 
     }
 
-    public override void DoDice() {
-        game.TryThrowDice();
+    public override bool Dice() {
+        return true;
     }
 
-    public override void DoMove(int diceNumber) {
-        game.TryMovePiece(GetBestPieceByHeuristic(diceNumber));
+    public override Piece Choose(int diceNumber) {
+        return GetBestPieceByHeuristic(diceNumber);
     }
 
     private Piece GetBestPieceByHeuristic(int diceNumber) {
@@ -27,12 +27,12 @@ public class AIPlayer : Player {
 
     private float Heuristic(Piece piece, int diceNumber, ref string cause) {
         float heuristic = 0;
-        KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
+        Block hitted = piece.GetBlock(diceNumber);
         cause = "";
         
         // -1. negative condition
-        if(!piece.CanMove(hitted.Value)){
-            cause += "negative condition " + hitted.Value + ", ";
+        if(!piece.CanMove(hitted.type)){
+            cause += "negative condition " + hitted.type + ", ";
             return -1;
         }
 
@@ -62,7 +62,7 @@ public class AIPlayer : Player {
         }
             
         // 3. try to hit someone
-        if(hitted.Value == BlockType.ENEMY) {
+        if(hitted.type == BlockType.ENEMY) {
             heuristic += 2;
             cause += "hits enemy, ";
         }

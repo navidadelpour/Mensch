@@ -8,20 +8,20 @@ public class HumanPlayer : Player {
 
     }
 
-    public override void DoDice() {
+    public override bool Dice() {
         wait(ref game.waitingForUserToDice);
-        game.TryThrowDice();
+        return true;
     }
 
-    public override void DoMove(int diceNumber) {
-        wait(ref game.waitingForUserToMove);
-        game.TryMovePiece(game.playerSelectedPiece);
+    public override Piece Choose(int diceNumber) {
+        wait(ref game.waitingForUserToChoose);
+        return game.playerSelectedPiece;
     }
 
     private void wait(ref bool condition) {
         condition = true;
         while(condition) {
-            game.InternalWait();
+            game.Delay();
         }
     }
 

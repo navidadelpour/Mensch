@@ -34,13 +34,13 @@ public class Piece : IComparable<Piece> {
         return String.Format("piece {0} of player {1} in position {2}", index, player.index, position);
     }
 
-    public KeyValuePair<Piece, BlockType> GetBlock(int diceNumber) {
+    public Block GetBlock(int diceNumber) {
         int nextPosition = 0;
         Piece hitted = null;
         BlockType blockType = BlockType.NOTHING;
         CalculateNextPositionAndBlockType(diceNumber, ref nextPosition, ref blockType);
         hitted = CalculateHittedPiece(nextPosition, ref blockType);
-        return new KeyValuePair<Piece, BlockType>(hitted, blockType);
+        return new Block(hitted, blockType);
     }
 
     private void CalculateNextPositionAndBlockType(int diceNumber, ref int nextPosition, ref BlockType blockType) {
@@ -101,9 +101,9 @@ public class Piece : IComparable<Piece> {
         return pacesGone + diceNumber;
     }
 
-    public KeyValuePair<int[], int> Go(BlockType blockType, int diceNumber) {
+    public Steps Go(BlockType blockType, int diceNumber) {
         Func<int, int> calculateMovement = CalculateInRoadMovement;
-        int[] steps = new int[diceNumber];
+        int[] positions = new int[diceNumber];
         int inGoalIndex = -1;
         int nextPacesGone = pacesGone;
         inGoal = inGoal || blockType == BlockType.INGOAL;
@@ -114,13 +114,13 @@ public class Piece : IComparable<Piece> {
                 inGoalIndex = i;
                 calculateMovement = CalculateInGoalMovement;
             }
-            steps[i] = calculateMovement(i + 1);
+            positions[i] = calculateMovement(i + 1);
         }
 
         position = calculateMovement(diceNumber);
         pacesGone = calculatePacesGone(diceNumber);
 
-        return new KeyValuePair<int[], int>(steps, inGoalIndex);
+        return new Steps(positions, inGoalIndex);
     }
 
     public void GetIn() {

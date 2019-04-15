@@ -13,9 +13,8 @@ public class Game {
 
     public bool end;
     public bool paused;
-    public bool waitingForUserToDice = true;
-    public bool waitingForUserToMove = true;
-    private bool shouldDice = true;
+    public bool waitingForUserToDice;
+    public bool waitingForUserToChoose;
 
     public Board board;
     private Player activePlayer;
@@ -50,14 +49,12 @@ public class Game {
         }
     }
 
-    public Thread Start() {
-        thread = new Thread(new ThreadStart(NextTurn));
-        thread.Name = "GameThread";
+    public void Start() {
         externalDelay = new ManualResetEvent(true);
         internalDelay = new ManualResetEvent(false);
-        InternalWait();
+
+        thread = new Thread(new ThreadStart(Run));
         thread.Start();
-        return thread;
     }
 
     public void Pause() {
@@ -74,16 +71,26 @@ public class Game {
         end = true;
     }
 
-    public void InternalWait() {
+    public void Delay() {
         internalDelay.WaitOne(delayTime);
+        externalDelay.WaitOne();
     }
 
     // called from main thread
-    public void AttemptMovePieceFromUser(int playerIndex, int pieceIndex) {
+    public void AttemptChoosePieceFromUser(int playerIndex, int pieceIndex) {
         Player player = players[playerIndex];
         playerSelectedPiece = player.pieces[pieceIndex];
-        if(waitingForUserToMove) {
-            waitingForUserToMove = false;
+
+        if(waitingForUserToChoose) {
+            Block hitted = playerSelectedPiece.GetBlock(diceNumber);
+            
+            if(!playerSelectedPiece.Belongs(activePlayer) || !playerSelectedPiece.CanMove(hitted.type)) {
+                if (!playerSelectedPiece.Belongs(activePlayer))
+                    OutTurnEvent(this, null);
+                else if(!playerSelectedPiece.CanMove(hitted.type))
+                    CantMoveEvent(this, null);
+            } else
+                waitingForUserToChoose = false;
         }
     }
 
@@ -94,92 +101,58 @@ public class Game {
         }
     }
 
-    public void TryMovePiece(Piece piece) {
-        externalDelay.WaitOne();
+    public void Run() {
+        while(!end) {
+            if(diceNumber != 6)
+                SetNextPlayer();
 
-        KeyValuePair<Piece, BlockType> hitted = piece.GetBlock(diceNumber);
-        Piece possibleHittedPiece = hitted.Key;
-        BlockType blockType = hitted.Value;
+            if(activePlayer.Dice())
+                ThrowDice();
 
-        if(shouldDice || !piece.Belongs(activePlayer) || !piece.CanMove(blockType)) {
-            if (!piece.Belongs(activePlayer))
-                OutTurnEvent(this, null);
-            else if(!piece.CanMove(blockType))
-                CantMoveEvent(this, null);
+            if(!activePlayer.CanMove(diceNumber))
+                continue;
 
-            waitingForUserToMove = true;
-            activePlayer.DoMove(diceNumber);
-            return;
+            Piece piece = activePlayer.Choose(diceNumber);
+            Move(piece, piece.GetBlock(diceNumber));
+
+            if(HasWinner()) {
+                WinEvent(this, new WinEventArgs(activePlayer));
+                break;
+            }
         }
-
-        // start moving
+    }
+    private void Move(Piece piece, Block block) {
         if(piece.isIn) {
-            KeyValuePair<int[], int> stepsData = piece.Go(blockType, diceNumber);
-            MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber, stepsData.Key, stepsData.Value));
-            InternalWait();
+            Steps stepsData = piece.Go(block.type, diceNumber);
+            MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber, stepsData));
+            Delay();
         } else if(diceNumber == 6){
             piece.GetIn();
             GetInPieceEvent(this, new GetInPieceEventArgs(piece));
-            InternalWait();
+            Delay();
         }
 
         // hit enemy
-        if(blockType == BlockType.ENEMY) {
-            possibleHittedPiece.GetOut();
-            GetOutPieceEvent(this, new GetOutPieceEventArgs(possibleHittedPiece));
-            InternalWait();
+        if(block.type == BlockType.ENEMY) {
+            block.piece.GetOut();
+            GetOutPieceEvent(this, new GetOutPieceEventArgs(block.piece));
+            Delay();
         }
-
-        shouldDice = true;
-        if(!HasWinner()) {
-            NextTurn();
-        } else {
-            WinEvent(this, new WinEventArgs(activePlayer));
-        }
-    }
-
-    public void TryThrowDice() {
-        externalDelay.WaitOne();
-        if(!shouldDice)
-            return;
-        shouldDice = false;
-
-        ThrowDice();
-
-        RolledDiceEvent(this, new RollDiceEventArgs(diceNumber, activePlayer));
-        InternalWait();
-
-        if(activePlayer.CanMove(diceNumber))
-            activePlayer.DoMove(diceNumber);
-        else
-            NextTurn();
-    }
-
-    private void NextTurn() {
-        externalDelay.WaitOne();
-        if(end)
-            return;
-
-        if(diceNumber != 6){
-            SetNextPlayer();
-            SetNextTurnEvent(this, new SetNextTurnEventArgs(activePlayer));
-            InternalWait();
-        }
-
-        shouldDice = true;
-        activePlayer.DoDice();
     }
 
     private void ThrowDice() {
         diceNumber = randomGenerator.Next(1, 7);
+        RolledDiceEvent(this, new RollDiceEventArgs(diceNumber, activePlayer));
+        Delay();
     }
-
 
     private void SetNextPlayer() {
         int currentPlayerIndex = activePlayer == null ? -1 : Array.IndexOf(players, activePlayer);
         do {
             activePlayer = players[(++currentPlayerIndex) % players.Length];
         } while(activePlayer == null);
+        SetNextTurnEvent(this, new SetNextTurnEventArgs(activePlayer));
+        Delay();
     } 
 
     private bool HasWinner() {

@@ -3,16 +3,26 @@ using System.Collections;
 using UnityEngine;
 
 public class EventListenersManager : MonoBehaviour {
-    Game game;
-    TaskManager taskManager;
-    Visualizer visualizer;
+    private bool started;
+    private Game game;
+    private TaskManager taskManager;
+    private Visualizer visualizer;
 
     public void Awake() {
         this.visualizer = Visualizer.instance;
         this.game = visualizer.game;
-        this.taskManager = visualizer.taskManager;
+        this.taskManager = new TaskManager();
+        started = true;
         Subscribtion();
     }
+
+    void Update() {
+        if(started && taskManager.HasTask()) {
+            Debug.Log("tasks: " + taskManager.TasksCount());
+            taskManager.Do();
+        }
+    }
+
 
     public void Subscribtion() {
         game.RolledDiceEvent += new EventHandler<RollDiceEventArgs>(OnRolledDice);

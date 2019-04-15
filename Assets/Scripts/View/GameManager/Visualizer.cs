@@ -9,6 +9,7 @@ public class Visualizer : MonoBehaviour {
 
     public static Visualizer instance;
 
+
     [HideInInspector] public Transform blocksParent;
     public GameObject blockPrefab;
     public GameObject piecePrefab;
@@ -17,37 +18,26 @@ public class Visualizer : MonoBehaviour {
     public WinPanel winPanel;
 
     public PlayerData[] playersData;
-    private PlayerData player;
-    public Player[] players;
-    Board board;
+    public PlayerData activePlayer;
+    private Board board;
     public Game game;
-    public Thread gameThread;
-    public TaskManager taskManager;
 
-    private bool started;
     private PlayerIconsHandler playerIconsHandler;
 
     void Awake() {
         if(instance == null) {
             instance = this;
         }
-        dice.gameObject.SetActive(false);
-    }
-
-    void Update() {
-        if(started && taskManager.HasTask()) {
-            Debug.Log("tasks: " + taskManager.TasksCount());
-            taskManager.Do();
-        }
     }
 
     private void OnApplicationQuit() {
-        if(game != null)
-            game.End();
+        if(game == null)
+            return;
+        game.End();
     }
 
     void OnApplicationPause(bool pauseStatus) {
-        if(gameThread == null)
+        if(game == null)
             return;
         if(!game.paused)
             game.Pause();
@@ -63,16 +53,13 @@ public class Visualizer : MonoBehaviour {
 
         board = new Board(4, 40, 4);
         game = new Game(board, playerTypes);
-        players = game.players;
-        player = playersData[0];
+        activePlayer = playersData[0];
 
-        taskManager = new TaskManager();
         gameObject.AddComponent(typeof(EventListenersManager));
         playerIconsHandler = GetComponent<PlayerIconsHandler>();
-
-        gameThread = game.Start();
         dice.gameObject.SetActive(true);
-        started = true;
+
+        game.Start();
     }
 
     public IEnumerator OnRolledDice(object obj, RollDiceEventArgs e) {
@@ -81,13 +68,13 @@ public class Visualizer : MonoBehaviour {
 
     public IEnumerator OnSetNextPlayer(object obj, SetNextTurnEventArgs e) {
         yield return new WaitForSeconds(.5f);
-        player = playersData[e.player.index];
+        activePlayer = playersData[e.player.index];
         playerIconsHandler.NextPlayer(e.player.index);
         yield return new WaitForSeconds(.5f);        
     }
 
     public IEnumerator OnGetInPiece(object obj, GetInPieceEventArgs e) {
-        PieceUI pieceUi = player.piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
+        PieceUI pieceUi = activePlayer.piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
         Transform[] transforms = new Transform[] {blocksParent.GetChild(e.piece.position)};
         yield return StartCoroutine(pieceUi.StepMove(transforms));
     }
@@ -100,8 +87,8 @@ public class Visualizer : MonoBehaviour {
     }
 
     public IEnumerator OnMovePiece(object obj, MovePieceEventArgs e) {
-        PieceUI pieceUi = player.piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
-        Transform[] transforms = GetStepsTransform(e.steps, e.inGoalIndex);
+        PieceUI pieceUi = activePlayer.piecesParent.GetChild(e.piece.index).GetComponent<PieceUI>();
+        Transform[] transforms = GetStepsTransform(e.steps.positions, e.steps.inGoalIndex);
         yield return StartCoroutine(pieceUi.StepMove(transforms));
     }
 
@@ -110,7 +97,7 @@ public class Visualizer : MonoBehaviour {
         Transform transform = blocksParent;
         for(int i = 0; i < steps.Length; i++) {
             if(i == inGoalIndex)
-                transform = player.goalsParent;
+                transform = activePlayer.goalsParent;
             transforms[i] = transform.GetChild(steps[i]);
         }
         return transforms;
