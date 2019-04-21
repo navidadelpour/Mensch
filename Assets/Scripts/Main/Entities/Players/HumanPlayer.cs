@@ -20,7 +20,7 @@ public class HumanPlayer : Player {
 
     private void wait(ref bool condition) {
         condition = true;
-        while(condition) {
+        while(condition && !game.end) {
             game.Delay();
         }
     }

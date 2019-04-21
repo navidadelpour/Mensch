@@ -49,34 +49,21 @@ public class GameGUIMaker {
         };
         for(int i = 0; i < 4; i++) {
             SetupPlayer(i);
-            SetupDicePosition(i);
             SetupGoalBlocks(i);
             SetupOutAndPiecesBlocks(i);
         }
     }
 
     private Color BrightnessFilter(Color c) {
-        // return new Color(c.r + ratio, c.g + ratio, c.b + ratio, c.a);
         return Color.Lerp(c, Color.white, .5f);
     }
 
     private void SetupPlayer(int i) {
         player = new GameObject("player " + i);
         player.transform.parent = playersParent;
-        visualizer.playersData[i].transform = player.transform;
 
         int startPosition = i * 10;
         visualizer.blocksParent.GetChild(startPosition).GetComponent<SpriteRenderer>().color = BrightnessFilter(visualizer.playersData[i].color);
-    }
-
-    private void SetupDicePosition(int i) {
-        if(visualizer.playersData[i].type != PlayerType.NOTHING) {
-            Vector2 position = (directions[i] + directions[(i + 1) % 4]) * 3;
-            GameObject dice = new GameObject("Dice Position");
-            dice.transform.position = position;
-            dice.transform.parent = player.transform;
-            visualizer.playersData[i].dice = dice.transform;
-        }
     }
 
     private void SetupGoalBlocks(int i) {

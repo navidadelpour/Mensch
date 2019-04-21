@@ -2455,7 +2455,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1090443873
 MonoBehaviour:
@@ -2500,7 +2500,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1288899963
 GameObject:
@@ -3341,8 +3341,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: e5447362992470548a2398cfd6711bcc, type: 3}
   - {fileID: 21300000, guid: bc706a9895c25d44ea3bf254c4f93315, type: 3}
   - {fileID: 21300000, guid: 1782a57e39bf49d4f82c67c8d46ceddd, type: 3}
-  rotationSpeed: 150
-  moveSpeed: 150
+  rotationSpeed: 200
+  moveSpeed: 200
   delay: 0.3
   minTime: 0.5
   maxTime: 1
@@ -3406,7 +3406,7 @@ Transform:
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1474749727
 MonoBehaviour:
@@ -3856,15 +3856,6 @@ MonoBehaviour:
   dice: {fileID: 1474749724}
   dialogBox: {fileID: 1411020267}
   winPanel: {fileID: 1925377945}
-  playersData: []
-  activePlayer:
-    color: {r: 0, g: 0, b: 0, a: 0}
-    type: 0
-    transform: {fileID: 0}
-    dice: {fileID: 0}
-    outsParent: {fileID: 0}
-    goalsParent: {fileID: 0}
-    piecesParent: {fileID: 0}
 --- !u!4 &1867181951
 Transform:
   m_ObjectHideFlags: 0

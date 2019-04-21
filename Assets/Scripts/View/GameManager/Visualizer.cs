@@ -31,20 +31,26 @@ public class Visualizer : MonoBehaviour {
     }
 
     private void OnApplicationQuit() {
+        EndGame();
+    }
+
+    void OnApplicationFocus(bool pauseStatus) {
+        if(game == null)
+            return;
+        if(!pauseStatus) {
+            game.paused = true;
+            game.Pause();
+        } else {
+            game.paused = false;
+            game.Resume();
+        }
+    }
+
+    public void EndGame() {
         if(game == null)
             return;
         game.End();
     }
-
-    void OnApplicationPause(bool pauseStatus) {
-        if(game == null)
-            return;
-        if(!game.paused)
-            game.Pause();
-        else
-            game.Resume();
-    }
-
 
     public void Setup() {
         PlayerType[] playerTypes = new PlayerType[playersData.Length];

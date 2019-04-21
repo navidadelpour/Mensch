@@ -49,21 +49,11 @@ public class Game {
         }
     }
 
-    public void Start() {
-        externalDelay = new ManualResetEvent(true);
-        internalDelay = new ManualResetEvent(false);
-
-        thread = new Thread(new ThreadStart(Run));
-        thread.Start();
-    }
-
     public void Pause() {
-        paused = true;
         externalDelay.Reset();
     }
 
     public void Resume() {
-        paused = false;
         externalDelay.Set();
     }
 
@@ -74,6 +64,15 @@ public class Game {
     public void Delay() {
         internalDelay.WaitOne(delayTime);
         externalDelay.WaitOne();
+    }
+
+    // called from main thread
+    public void Start() {
+        externalDelay = new ManualResetEvent(true);
+        internalDelay = new ManualResetEvent(false);
+
+        thread = new Thread(new ThreadStart(Run));
+        thread.Start();
     }
 
     // called from main thread
@@ -112,32 +111,30 @@ public class Game {
             if(!activePlayer.CanMove(diceNumber))
                 continue;
 
-            Piece piece = activePlayer.Choose(diceNumber);
-            Move(piece, piece.GetBlock(diceNumber));
+            Move(activePlayer.Choose(diceNumber));
 
-            if(HasWinner()) {
-                WinEvent(this, new WinEventArgs(activePlayer));
-                break;
-            }
+            if(!HasWinner())
+                continue;
+            
+            Win();
         }
     }
-    private void Move(Piece piece, Block block) {
+    private void Move(Piece piece) {
+        Block block = piece.GetBlock(diceNumber);
         if(piece.isIn) {
             Steps stepsData = piece.Go(block.type, diceNumber);
             MovePieceEvent(this, new MovePieceEventArgs(piece, diceNumber, stepsData));
-            Delay();
         } else if(diceNumber == 6){
             piece.GetIn();
             GetInPieceEvent(this, new GetInPieceEventArgs(piece));
-            Delay();
         }
 
         // hit enemy
         if(block.type == BlockType.ENEMY) {
             block.piece.GetOut();
             GetOutPieceEvent(this, new GetOutPieceEventArgs(block.piece));
-            Delay();
         }
+        Delay();
     }
 
     private void ThrowDice() {
@@ -154,6 +151,11 @@ public class Game {
         SetNextTurnEvent(this, new SetNextTurnEventArgs(activePlayer));
         Delay();
     } 
+
+    private void Win() {
+        WinEvent(this, new WinEventArgs(activePlayer));
+        end = true;
+    }
 
     private bool HasWinner() {
         bool win = true;

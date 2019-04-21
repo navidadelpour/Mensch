@@ -17,7 +17,7 @@ public class EventListenersManager : MonoBehaviour {
     }
 
     void Update() {
-        if(started && taskManager.HasTask()) {
+        while(started && taskManager.HasTask()) {
             Debug.Log("tasks: " + taskManager.TasksCount());
             taskManager.Do();
         }
@@ -36,6 +36,17 @@ public class EventListenersManager : MonoBehaviour {
         game.CantMoveEvent += new EventHandler(OnCantMoveEvent);
         game.ShouldMoveEvent += new EventHandler(OnShouldMoveEvent);
     }
+
+    public IEnumerator SafeRun(IEnumerator runnable) {
+        taskManager.taskRunning = true;
+        game.Pause();
+        yield return StartCoroutine(runnable);
+        taskManager.taskRunning = false;
+        if(!taskManager.HasTask() && !game.paused) {
+            game.Resume();
+        }
+    }
+
 
     public void OnRolledDice(object obj, RollDiceEventArgs e) {
         taskManager.Add(() => {
@@ -95,14 +106,6 @@ public class EventListenersManager : MonoBehaviour {
         taskManager.Add(() => {
             StartCoroutine(SafeRun(visualizer.OnShouldMoveEvent(obj, e)));
         });
-    }
-
-    public IEnumerator SafeRun(IEnumerator runnable) {
-        taskManager.taskRunning = true;
-        game.Pause();
-        yield return StartCoroutine(runnable);
-        game.Resume();
-        taskManager.taskRunning = false;
     }
 
 }

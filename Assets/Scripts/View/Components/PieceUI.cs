@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PieceUI : MonoBehaviour {
     
-    private float speed = 4;
+    private float speed = 6;
     public float moveDelay = .2f;
     Vector3 zIndex = Vector3.back * 2;
 

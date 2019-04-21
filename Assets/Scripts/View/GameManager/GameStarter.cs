@@ -53,6 +53,7 @@ public class GameStarter : MonoBehaviour {
     }
 
     public void OnBackButtonClick() {
+        visualizer.EndGame();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
