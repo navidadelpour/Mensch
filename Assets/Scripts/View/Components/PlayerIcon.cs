@@ -19,7 +19,7 @@ public class PlayerIcon : MonoBehaviour {
         image = GetComponent<Image>();
         color = image.color;
         icon = transform.GetChild(0).GetComponent<Image>();
-        types = new PlayerType[] {PlayerType.HUMAN, PlayerType.AI, PlayerType.NOTHING};
+        types = new PlayerType[] {PlayerType.AI, PlayerType.HUMAN, PlayerType.NOTHING};
         currentIndex = Array.IndexOf(types, type);
         SetImage(type);
     }

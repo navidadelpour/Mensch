@@ -18,7 +18,6 @@ public class EventListenersManager : MonoBehaviour {
 
     void Update() {
         while(started && taskManager.HasTask()) {
-            Debug.Log("tasks: " + taskManager.TasksCount());
             taskManager.Do();
         }
     }

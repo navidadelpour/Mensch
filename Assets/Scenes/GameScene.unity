@@ -3899,7 +3899,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73896f5ac6fd55a44a2eff4c0a126a5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  log: 1
+  log: 0
   startButton: {fileID: 243742155}
   backButton: {fileID: 1378870314}
 --- !u!1 &1891098946
